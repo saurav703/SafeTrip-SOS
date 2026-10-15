@@ -1,0 +1,6 @@
+{
+  "name": "SafeTrip SOS",
+  "description": "Proactive journey and travel safety app that understands your trip, detects route deviations and unusual stops, alerts silently with decoy PIN and voice codes, and guides you with offline first-aid and safe spot finder.",
+  "requestFramePermissions": ["geolocation", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
