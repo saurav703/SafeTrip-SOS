@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Trip, VehicleType, EmergencyContact } from '../types/safetrip';
+import { motion, AnimatePresence } from 'motion/react';
+import { Trip, VehicleType, EmergencyContact, DriverDetails } from '../types/safetrip';
 import { TRIP_PRESETS } from '../data/mockJourneys';
+import { lookupVehicleDriver } from '../data/vehicleRegistry';
 import {
   Car,
   Compass,
@@ -14,7 +16,12 @@ import {
   Check,
   Share2,
   Clock,
-  Sparkles
+  Sparkles,
+  Search,
+  BadgeCheck,
+  Phone,
+  Star,
+  FileText
 } from 'lucide-react';
 
 interface StartJourneyModalProps {
@@ -31,9 +38,14 @@ export const StartJourneyModal: React.FC<StartJourneyModalProps> = ({
   const [vehicleType, setVehicleType] = useState<VehicleType>('cab');
   const [startName, setStartName] = useState('Financial District Plaza');
   const [destinationName, setDestinationName] = useState('Sunset Pines Residential (Home)');
-  const [vehicleNumber, setVehicleNumber] = useState('CAB-9482 (Silver Camry)');
-  const [driverName, setDriverName] = useState('Vikram S.');
+  const [vehicleNumber, setVehicleNumber] = useState('CAB-9482');
+  const [driverName, setDriverName] = useState('Vikram S. Sharma');
   const [driverPhone, setDriverPhone] = useState('+1 (555) 019-3388');
+  const [driverDetails, setDriverDetails] = useState<DriverDetails | null>(() => {
+    const res = lookupVehicleDriver('CAB-9482', 'cab');
+    return res ? res.details : null;
+  });
+  const [isAutoSearching, setIsAutoSearching] = useState(false);
   const [routeSafetyMode, setRouteSafetyMode] = useState<'safe' | 'standard'>('safe');
   const [selectedContactIds, setSelectedContactIds] = useState<string[]>(
     contacts.filter((c) => c.autoNotify || c.isPrimary).map((c) => c.id)
@@ -57,10 +69,30 @@ export const StartJourneyModal: React.FC<StartJourneyModalProps> = ({
 
   const handleToggleContact = (id: string) => {
     if (selectedContactIds.includes(id)) {
-      setSelectedContactIds(selectedContactIds.filter((cid) => cid !== id));
+      setSelectedContactIds(selectedContactIds.filter((cid: string) => cid !== id));
     } else {
       setSelectedContactIds([...selectedContactIds, id]);
     }
+  };
+
+  const handleVehicleNumberChange = (num: string) => {
+    setVehicleNumber(num);
+    setIsAutoSearching(true);
+
+    const match = lookupVehicleDriver(num, vehicleType);
+    if (match) {
+      setDriverName(match.details.driverName);
+      setDriverPhone(match.details.driverPhone);
+      setVehicleType(match.vehicleType);
+      setDriverDetails(match.details);
+    } else {
+      setDriverDetails(null);
+    }
+    setIsAutoSearching(false);
+  };
+
+  const handleSelectQuickPlate = (plate: string) => {
+    handleVehicleNumberChange(plate);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -76,6 +108,7 @@ export const StartJourneyModal: React.FC<StartJourneyModalProps> = ({
         vehicleNumber,
         driverName,
         driverPhone,
+        driverDetails: driverDetails || undefined,
         startName,
         destinationName,
         startPoint: presetMatch.startPoint,
@@ -90,7 +123,13 @@ export const StartJourneyModal: React.FC<StartJourneyModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[5000] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <motion.div
+        initial={{ scale: 0.92, y: 20, opacity: 0 }}
+        animate={{ scale: 1, y: 0, opacity: 1 }}
+        exit={{ scale: 0.92, y: 20, opacity: 0 }}
+        transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
+        className="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
+      >
         {/* Header */}
         <div className="p-4 border-b border-slate-800 bg-slate-950 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -197,37 +236,110 @@ export const StartJourneyModal: React.FC<StartJourneyModalProps> = ({
             </div>
           </div>
 
-          {/* Vehicle / Driver Metadata */}
-          <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 space-y-2.5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block">
-              Vehicle & Operator Verification
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <div>
-                <label className="text-[10px] text-slate-500 block mb-1">
-                  License Plate / Cab Number
-                </label>
+          {/* Vehicle / Driver Metadata with Auto Lookup */}
+          <div className="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                <BadgeCheck className="w-4 h-4 text-emerald-400" />
+                <span>Automatic Vehicle & Driver RTO Lookup</span>
+              </span>
+              <span className="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-2 py-0.5 rounded-full font-mono">
+                Auto-Detection Active
+              </span>
+            </div>
+
+            <div>
+              <label className="text-[10px] text-slate-400 block mb-1">
+                Enter Car Number or Auto-Rickshaw Number:
+              </label>
+              <div className="relative">
+                <Search className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
                 <input
                   type="text"
-                  placeholder="e.g. CAB-9482 (Silver Camry)"
+                  placeholder="e.g. CAB-9482, MH-12-AZ-3819, DL-01-TA-4491, KA-05-AU-2045..."
                   value={vehicleNumber}
-                  onChange={(e) => setVehicleNumber(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200"
+                  onChange={(e) => handleVehicleNumberChange(e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs font-mono tracking-wider uppercase text-emerald-300 focus:outline-none focus:border-emerald-500"
                 />
               </div>
-              <div>
-                <label className="text-[10px] text-slate-500 block mb-1">
-                  Driver / Operator Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Vikram S."
-                  value={driverName}
-                  onChange={(e) => setDriverName(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200"
-                />
+
+              {/* Quick sample vehicle / auto buttons */}
+              <div className="flex items-center gap-1.5 mt-2 overflow-x-auto pb-1 text-[10px]">
+                <span className="text-slate-500 shrink-0">Try Plate:</span>
+                {[
+                  { plate: 'CAB-9482', label: '🚖 Cab (Camry)' },
+                  { plate: 'MH-12-AZ-3819', label: '🛺 Auto (Pune)' },
+                  { plate: 'DL-01-TA-4491', label: '🚖 Cab (Delhi)' },
+                  { plate: 'KA-05-AU-2045', label: '🛺 Auto (BLR)' },
+                  { plate: 'CA-8XPL-99', label: '⚡ Tesla Cab' }
+                ].map((s) => (
+                  <button
+                    key={s.plate}
+                    type="button"
+                    onClick={() => handleSelectQuickPlate(s.plate)}
+                    className="px-2 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded text-slate-300 whitespace-nowrap transition-colors"
+                  >
+                    {s.label}
+                  </button>
+                ))}
               </div>
             </div>
+
+            {/* Auto-Populated Driver Details Card */}
+            <AnimatePresence>
+              {driverDetails && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, y: -8 }}
+                  animate={{ opacity: 1, height: 'auto', y: 0 }}
+                  exit={{ opacity: 0, height: 0, y: -8 }}
+                  transition={{ duration: 0.3 }}
+                  className="p-3 bg-slate-900/90 rounded-xl border border-emerald-500/40 space-y-2.5 overflow-hidden shadow-lg"
+                >
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-emerald-500 text-slate-950 font-bold text-xs flex items-center justify-center">
+                        {driverDetails.driverName.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-slate-100 flex items-center gap-1.5">
+                          <span>{driverDetails.driverName}</span>
+                          <span className="text-[10px] text-emerald-400 bg-emerald-950 border border-emerald-800 px-1.5 py-0.2 rounded">
+                            ✓ Police Verified
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-slate-400 flex items-center gap-2">
+                          <span className="flex items-center text-amber-300">
+                            <Star className="w-2.5 h-2.5 fill-current mr-0.5" />
+                            {driverDetails.rating}
+                          </span>
+                          <span>· {driverDetails.totalTrips.toLocaleString()} trips</span>
+                          <span>· {driverDetails.driverPhone}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-300">
+                    <div>
+                      <span className="text-slate-500 block">Vehicle Model:</span>
+                      <span className="font-medium text-slate-200">{driverDetails.vehicleModel}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 block">RTO License Badge:</span>
+                      <span className="font-mono text-emerald-400">{driverDetails.badgeNumber}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 block">Verification Authority:</span>
+                      <span className="text-slate-300 truncate block">{driverDetails.rtoAuthority}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 block">Insurance Status:</span>
+                      <span className="text-emerald-400 font-medium">Valid until {driverDetails.insuranceValidUntil}</span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Safe Corridor Option */}

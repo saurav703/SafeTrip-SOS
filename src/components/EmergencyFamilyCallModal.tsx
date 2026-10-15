@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { EmergencyContact, LatLng, Trip } from '../types/safetrip';
 import { soundSystem } from '../utils/audioHaptics';
 import {
@@ -77,27 +78,57 @@ export const EmergencyFamilyCallModal: React.FC<EmergencyFamilyCallModalProps> =
 
   return (
     <div className="fixed inset-0 z-[7000] bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-slate-900 border border-rose-900/60 rounded-3xl shadow-2xl overflow-hidden flex flex-col items-center p-6 text-center animate-in zoom-in-95">
+      <motion.div
+        initial={{ scale: 0.9, y: 20, opacity: 0 }}
+        animate={{ scale: 1, y: 0, opacity: 1 }}
+        exit={{ scale: 0.9, y: 20, opacity: 0 }}
+        transition={{ type: 'spring', bounce: 0.25, duration: 0.4 }}
+        className="w-full max-w-md bg-slate-900 border border-rose-900/60 rounded-3xl shadow-2xl overflow-hidden flex flex-col items-center p-6 text-center"
+      >
         {/* Distress Tag */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-950/80 border border-rose-800 text-rose-300 text-[11px] font-bold uppercase tracking-wider rounded-full mb-6">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-950/80 border border-rose-800 text-rose-300 text-[11px] font-bold uppercase tracking-wider rounded-full mb-6 shadow-sm">
           <ShieldAlert className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
           <span>"Help Me" Voice Trigger Active</span>
         </div>
 
         {/* Contact Avatar with Animated Waves */}
         <div className="relative mb-5 flex items-center justify-center">
-          <div
-            className={`absolute w-32 h-32 rounded-full border border-rose-500/30 ${
-              callStatus === 'dialing' ? 'animate-ping opacity-30' : 'animate-voice-glow opacity-60'
-            }`}
+          {/* Animated Ripples */}
+          <motion.div
+            animate={{
+              scale: [1, 2.2],
+              opacity: [0.7, 0]
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: 'easeOut'
+            }}
+            className="absolute w-24 h-24 rounded-full border-2 border-rose-500/40 pointer-events-none"
           />
-          <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-rose-700 via-rose-600 to-amber-600 flex items-center justify-center text-white text-2xl font-bold shadow-xl shadow-rose-950/70 border-2 border-white/20">
+          <motion.div
+            animate={{
+              scale: [1, 1.8],
+              opacity: [0.6, 0]
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: 'easeOut',
+              delay: 0.6
+            }}
+            className="absolute w-24 h-24 rounded-full border border-amber-500/30 pointer-events-none"
+          />
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            className="relative w-24 h-24 rounded-full bg-gradient-to-tr from-rose-700 via-rose-600 to-amber-600 flex items-center justify-center text-white text-2xl font-bold shadow-xl shadow-rose-950/70 border-2 border-white/20"
+          >
             {contact.name
               .split(' ')
               .map((n) => n[0])
               .join('')
               .slice(0, 2)}
-          </div>
+          </motion.div>
         </div>
 
         {/* Contact Info */}
@@ -108,8 +139,8 @@ export const EmergencyFamilyCallModal: React.FC<EmergencyFamilyCallModalProps> =
         {/* Status & Call Duration */}
         <div className="mb-6 flex flex-col items-center gap-1">
           {callStatus === 'dialing' ? (
-            <div className="flex items-center gap-2 text-xs text-amber-300 font-medium animate-pulse">
-              <PhoneCall className="w-4 h-4" />
+            <div className="flex items-center gap-2 text-xs text-amber-300 font-medium">
+              <PhoneCall className="w-4 h-4 animate-bounce text-amber-400" />
               <span>Dialing Primary Family Contact...</span>
             </div>
           ) : (
@@ -122,17 +153,26 @@ export const EmergencyFamilyCallModal: React.FC<EmergencyFamilyCallModalProps> =
           {/* Sound Wave bars if connected */}
           {callStatus === 'connected' && (
             <div className="flex items-center gap-1 mt-2">
-              <div className="w-1 bg-emerald-400 rounded-full animate-wave-1 h-3" />
-              <div className="w-1 bg-emerald-400 rounded-full animate-wave-2 h-5" />
-              <div className="w-1 bg-emerald-400 rounded-full animate-wave-3 h-4" />
-              <div className="w-1 bg-emerald-400 rounded-full animate-wave-4 h-6" />
-              <div className="w-1 bg-emerald-400 rounded-full animate-wave-5 h-3" />
+              {[0, 1, 2, 3, 4].map((i) => (
+                <motion.div
+                  key={i}
+                  animate={{
+                    height: [6, 18 + (i % 2) * 8, 6]
+                  }}
+                  transition={{
+                    duration: 0.6 + i * 0.15,
+                    repeat: Infinity,
+                    ease: 'easeInOut'
+                  }}
+                  className="w-1 bg-emerald-400 rounded-full"
+                />
+              ))}
             </div>
           )}
         </div>
 
         {/* Dispatched Actions Status Cards */}
-        <div className="w-full bg-slate-950/90 rounded-2xl border border-slate-800 p-3.5 space-y-2 mb-6 text-left text-xs">
+        <div className="w-full bg-slate-950/90 rounded-2xl border border-slate-800 p-3.5 space-y-2 mb-6 text-left text-xs shadow-inner">
           <div className="flex items-center justify-between text-emerald-400 font-medium">
             <span className="flex items-center gap-1.5">
               <CheckCircle className="w-3.5 h-3.5" />
@@ -162,7 +202,9 @@ export const EmergencyFamilyCallModal: React.FC<EmergencyFamilyCallModalProps> =
 
         {/* In-Call Controls */}
         <div className="w-full flex items-center justify-center gap-4 mb-6">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.94 }}
             onClick={() => setIsMuted(!isMuted)}
             className={`p-3.5 rounded-full border transition-all ${
               isMuted
@@ -172,9 +214,11 @@ export const EmergencyFamilyCallModal: React.FC<EmergencyFamilyCallModalProps> =
             title="Toggle Mute"
           >
             {isMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.94 }}
             onClick={() => setIsSpeaker(!isSpeaker)}
             className={`p-3.5 rounded-full border transition-all ${
               isSpeaker
@@ -184,26 +228,28 @@ export const EmergencyFamilyCallModal: React.FC<EmergencyFamilyCallModalProps> =
             title="Speakerphone"
           >
             {isSpeaker ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-          </button>
+          </motion.button>
 
           {/* End Call Button */}
-          <button
+          <motion.button
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.92 }}
             onClick={() => {
               soundSystem.stopPhoneRing();
               onEndCall();
             }}
-            className="p-4 rounded-full bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-950/60 transition-all active:scale-95"
+            className="p-4 rounded-full bg-rose-600 hover:bg-rose-500 text-white shadow-xl shadow-rose-950/60 transition-all active:scale-95 border border-rose-400/40"
             title="Hang up call"
           >
             <PhoneOff className="w-6 h-6" />
-          </button>
+          </motion.button>
         </div>
 
         {/* Direct Mobile Dialer Fallback */}
         <div className="w-full pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
           <a
             href={`tel:${cleanPhone}`}
-            className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-medium underline"
+            className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-medium underline transition-colors"
           >
             <Phone className="w-3.5 h-3.5" />
             <span>Launch Native Phone Dialer</span>
@@ -213,12 +259,12 @@ export const EmergencyFamilyCallModal: React.FC<EmergencyFamilyCallModalProps> =
               soundSystem.stopPhoneRing();
               onEndCall();
             }}
-            className="text-xs text-slate-400 hover:text-slate-200"
+            className="text-xs text-slate-400 hover:text-slate-200 transition-colors"
           >
             Dismiss
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

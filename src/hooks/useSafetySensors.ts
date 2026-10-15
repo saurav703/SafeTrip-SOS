@@ -11,7 +11,7 @@ export function useSafetySensors(params: {
   voiceDetectionEnabled: boolean;
   shakeEnabled: boolean;
   fallDetectionEnabled: boolean;
-  onVoiceTrigger: (matchedPhrase: string, intent?: 'help_me' | 'codeword' | 'assistant') => void;
+  onVoiceTrigger: (matchedPhrase: string, intent?: 'help_me' | 'accident' | 'codeword' | 'assistant') => void;
   onShakeTrigger: () => void;
   onFallTrigger: () => void;
   onBatteryAlert: (batteryLevel: number) => void;
@@ -97,8 +97,13 @@ export function useSafetySensors(params: {
 
         const targetPhrase = voiceCodeWord.trim().toLowerCase();
         
-        // Exact user requirement: "when i call help me then my app active send my location to my contact..."
-        if (
+        // Exact user requirements:
+        // 1. "accident" -> sends notification of near hospital or medical shop
+        if (cleaned.includes('accident') || cleaned.includes('crash') || cleaned.includes('collision')) {
+          onVoiceTrigger(cleaned, 'accident');
+        }
+        // 2. "help me" -> calls contact and sends location
+        else if (
           cleaned.includes('help me') ||
           cleaned.includes('help') ||
           cleaned.includes('save me') ||
@@ -128,7 +133,7 @@ export function useSafetySensors(params: {
     };
   }, [voiceCodeWord, voiceDetectionEnabled, onVoiceTrigger]);
 
-  // 2. Battery Monitoring
+  // 2. Battery Monitoring: Auto notification when less than 20%
   useEffect(() => {
     if ('getBattery' in navigator) {
       (navigator as any).getBattery().then((battery: any) => {
@@ -137,7 +142,8 @@ export function useSafetySensors(params: {
           setBatteryLevel(pct);
           setIsCharging(battery.charging);
 
-          if (pct <= 12 && !battery.charging && !batteryAlertFiredRef.current) {
+          // User requirement: "add auto battery notification when it is less than 20%"
+          if (pct < 20 && !battery.charging && !batteryAlertFiredRef.current) {
             batteryAlertFiredRef.current = true;
             onBatteryAlert(pct);
           }
@@ -209,13 +215,15 @@ export function useSafetySensors(params: {
     };
   }, [shakeEnabled, fallDetectionEnabled, onShakeTrigger, onFallTrigger]);
 
-  const simulateSpeechPhrase = useCallback((phrase: string, intent?: 'help_me' | 'codeword' | 'assistant') => {
+  const simulateSpeechPhrase = useCallback((phrase: string, intent?: 'help_me' | 'accident' | 'codeword' | 'assistant') => {
     setLastHeardSpeech(phrase);
     const cleaned = phrase.trim().toLowerCase();
     const targetPhrase = voiceCodeWord.trim().toLowerCase();
 
     if (intent) {
       onVoiceTrigger(phrase, intent);
+    } else if (cleaned.includes('accident') || cleaned.includes('crash') || cleaned.includes('collision')) {
+      onVoiceTrigger(phrase, 'accident');
     } else if (
       cleaned.includes('help me') ||
       cleaned.includes('help') ||

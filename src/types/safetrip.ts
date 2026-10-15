@@ -23,7 +23,8 @@ export type EscalationTrigger =
   | 'manual_sos' 
   | 'fall_detected' 
   | 'battery_critical'
-  | 'panic_button';
+  | 'panic_button'
+  | 'accident';
 
 export interface LatLng {
   lat: number;
@@ -113,6 +114,22 @@ export interface TripTelemetry {
   etaMinutes: number;
 }
 
+export interface DriverDetails {
+  driverName: string;
+  driverPhone: string;
+  driverPhotoUrl?: string;
+  licenseNumber: string;
+  badgeNumber: string;
+  vehicleModel: string;
+  vehicleColor: string;
+  vehicleType: VehicleType;
+  rating: number; // e.g. 4.9
+  totalTrips: number;
+  policeVerified: boolean;
+  rtoAuthority: string;
+  insuranceValidUntil: string;
+}
+
 export interface Trip {
   id: string;
   name: string;
@@ -120,6 +137,7 @@ export interface Trip {
   vehicleNumber?: string;
   driverName?: string;
   driverPhone?: string;
+  driverDetails?: DriverDetails;
   startName: string;
   destinationName: string;
   startPoint: LatLng;

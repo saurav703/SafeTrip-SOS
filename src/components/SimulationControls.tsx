@@ -1,10 +1,11 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import { Play, AlertTriangle, Clock, Mic, Zap, BatteryLow, EyeOff, Navigation, Radio } from 'lucide-react';
 
 interface SimulationControlsProps {
   isSimulating: boolean;
   activeScenario: string | null;
-  onRunScenario: (scenario: 'normal' | 'deviation' | 'long_stop' | 'voice_trigger' | 'help_me' | 'fall' | 'low_battery') => void;
+  onRunScenario: (scenario: 'normal' | 'deviation' | 'long_stop' | 'voice_trigger' | 'help_me' | 'accident' | 'fall' | 'low_battery' | 'battery_under_20') => void;
   onOpenDecoy: () => void;
   onToggleRealGPS: () => void;
   isRealGPS: boolean;
@@ -46,6 +47,7 @@ export const SimulationControls: React.FC<SimulationControlsProps> = ({
       </div>
 
       <div className="flex flex-wrap items-center gap-1.5">
+        {/* Help Me Voice Trigger */}
         <button
           onClick={() => onRunScenario('help_me')}
           className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
@@ -53,10 +55,38 @@ export const SimulationControls: React.FC<SimulationControlsProps> = ({
               ? 'bg-rose-600 text-white shadow-lg shadow-rose-950/60 ring-2 ring-rose-400'
               : 'bg-rose-950/80 text-rose-200 border border-rose-800/80 hover:bg-rose-900'
           }`}
-          title="Simulates saying 'Help Me' -> Sends GPS to contact, sends Notification, and calls Family"
+          title="Simulates saying 'Help Me' -> Calls saved contact & sends location"
         >
           <Mic className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
-          <span>Say "Help Me" (Auto Call & Dispatch)</span>
+          <span>Say "Help Me" (Auto Call Contact)</span>
+        </button>
+
+        {/* Accident Voice Trigger */}
+        <button
+          onClick={() => onRunScenario('accident')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
+            activeScenario === 'accident'
+              ? 'bg-amber-600 text-white shadow-lg shadow-amber-950/60 ring-2 ring-amber-400'
+              : 'bg-amber-950/80 text-amber-200 border border-amber-800/80 hover:bg-amber-900'
+          }`}
+          title="Simulates saying 'Accident' -> Sends notification of near hospital and medical shop"
+        >
+          <Mic className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+          <span>Say "Accident" (Hospital & Medical Store)</span>
+        </button>
+
+        {/* Low Battery <20% Auto Alert */}
+        <button
+          onClick={() => onRunScenario('battery_under_20')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all ${
+            activeScenario === 'battery_under_20'
+              ? 'bg-orange-600 text-white shadow'
+              : 'bg-orange-950/60 text-orange-200 border border-orange-800/60 hover:bg-orange-900'
+          }`}
+          title="Simulates battery dropping below 20% -> Auto sends battery notification & location"
+        >
+          <BatteryLow className="w-3.5 h-3.5 text-orange-400" />
+          <span>Battery &lt;20% Alert</span>
         </button>
 
         <button

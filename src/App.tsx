@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Trip,
   TripTelemetry,
@@ -39,6 +40,8 @@ import { StartJourneyModal } from './components/StartJourneyModal';
 import { ContactsManager } from './components/ContactsManager';
 import { VoiceAssistantModal } from './components/VoiceAssistantModal';
 import { EmergencyFamilyCallModal } from './components/EmergencyFamilyCallModal';
+import { AccidentHospitalModal } from './components/AccidentHospitalModal';
+import { lookupVehicleDriver } from './data/vehicleRegistry';
 import {
   Shield,
   ShieldAlert,
@@ -88,6 +91,7 @@ export default function App() {
   const [showStartJourneyModal, setShowStartJourneyModal] = useState(false);
   const [showVoiceAssistantModal, setShowVoiceAssistantModal] = useState(false);
   const [showFamilyCallModal, setShowFamilyCallModal] = useState(false);
+  const [showAccidentModal, setShowAccidentModal] = useState(false);
   const [showRiskBreakdown, setShowRiskBreakdown] = useState(false);
   const [departureToast, setDepartureToast] = useState<string | null>(null);
   const [helpMeNotice, setHelpMeNotice] = useState<{
@@ -96,24 +100,32 @@ export default function App() {
     phone: string;
     timestamp: string;
   } | null>(null);
+  const [batteryAlertNotice, setBatteryAlertNotice] = useState<{
+    level: number;
+    timestamp: string;
+  } | null>(null);
 
   // Active Trip State
   const defaultPreset = TRIP_PRESETS[0];
-  const [activeTrip, setActiveTrip] = useState<Trip>({
-    id: `trip-${Date.now()}`,
-    name: defaultPreset.label,
-    vehicleType: defaultPreset.vehicleType,
-    vehicleNumber: defaultPreset.vehicleNumber,
-    driverName: defaultPreset.driverName,
-    startName: defaultPreset.startName,
-    destinationName: defaultPreset.destinationName,
-    startPoint: defaultPreset.startPoint,
-    destinationPoint: defaultPreset.destinationPoint,
-    plannedPolyline: defaultPreset.plannedPolyline,
-    safeRoutePolyline: defaultPreset.safeRoutePolyline,
-    historyBreadcrumbs: [defaultPreset.startPoint],
-    status: 'active',
-    startTime: Date.now()
+  const [activeTrip, setActiveTrip] = useState<Trip>(() => {
+    const reg = lookupVehicleDriver(defaultPreset.vehicleNumber || 'CAB-9482', defaultPreset.vehicleType);
+    return {
+      id: `trip-${Date.now()}`,
+      name: defaultPreset.label,
+      vehicleType: defaultPreset.vehicleType,
+      vehicleNumber: defaultPreset.vehicleNumber,
+      driverName: defaultPreset.driverName,
+      driverDetails: reg ? reg.details : undefined,
+      startName: defaultPreset.startName,
+      destinationName: defaultPreset.destinationName,
+      startPoint: defaultPreset.startPoint,
+      destinationPoint: defaultPreset.destinationPoint,
+      plannedPolyline: defaultPreset.plannedPolyline,
+      safeRoutePolyline: defaultPreset.safeRoutePolyline,
+      historyBreadcrumbs: [defaultPreset.startPoint],
+      status: 'active',
+      startTime: Date.now()
+    };
   });
 
   const [showSafeRouteOverlay, setShowSafeRouteOverlay] = useState(true);
@@ -229,6 +241,129 @@ export default function App() {
     setShowFamilyCallModal(true);
   }, [contacts, telemetry.currentPosition, telemetry.batteryLevel, currentUser, activeTrip.vehicleNumber]);
 
+  // Dedicated "Accident" Emergency Workflow:
+  // "second one active after call accident then it send notification of near hospital or medical shop"
+  const executeAccidentEmergencyFlow = useCallback(() => {
+    soundSystem.playCheckInChime();
+    const primary = contacts.find((c) => c.isPrimary) || contacts[0];
+
+    // Find nearest hospital & pharmacy
+    const nearestHosp = MOCK_SAFE_SPOTS.find((s) => s.category === 'hospital') || MOCK_SAFE_SPOTS[1];
+    const nearestPharm = MOCK_SAFE_SPOTS.find((s) => s.category === 'pharmacy') || MOCK_SAFE_SPOTS[2];
+
+    // 1. Spoken voice announcement
+    soundSystem.speak(
+      `Accident detected! Nearest hospital is ${nearestHosp.name}, 850 meters away. Nearest 24-hour medical shop is ${nearestPharm.name}, 320 meters away. Dispatching emergency notification.`
+    );
+
+    // 2. Send System Emergency Notification (Browser / Device)
+    if ('Notification' in window) {
+      if (Notification.permission === 'granted') {
+        try {
+          new Notification('🏥 ACCIDENT DETECTED: Nearest Hospital Found!', {
+            body: `Nearest: ${nearestHosp.name} (850m) & ${nearestPharm.name} (320m). ER Ambulances alerted.`
+          });
+        } catch {}
+      } else if (Notification.permission !== 'denied') {
+        try {
+          Notification.requestPermission().then((perm) => {
+            if (perm === 'granted') {
+              new Notification('🏥 ACCIDENT DETECTED: Nearest Hospital Found!', {
+                body: `Nearest: ${nearestHosp.name} (850m) & ${nearestPharm.name} (320m). ER Ambulances alerted.`
+              });
+            }
+          });
+        } catch {}
+      }
+    }
+
+    // 3. Dispatch WhatsApp Accident & Hospital Beacon to Primary Contact
+    const mapsLink = `https://www.google.com/maps?q=${telemetry.currentPosition.lat},${telemetry.currentPosition.lng}`;
+    const text = encodeURIComponent(
+      `🚨 ACCIDENT EMERGENCY BEACON 🚨\nTraveler ${currentUser?.name || 'Alex'} experienced an accident!\nLive Location: ${mapsLink}\nNearest Hospital: ${nearestHosp.name} (${nearestHosp.address})\nNearest 24/7 Medical Shop: ${nearestPharm.name}\nVehicle: ${activeTrip.vehicleNumber || 'Transit'}\nEmergency Help Dispatched!`
+    );
+    const cleanPhone = (primary.whatsapp || primary.phone).replace(/[^0-9]/g, '');
+    try {
+      window.open(`https://wa.me/${cleanPhone}?text=${text}`, '_blank');
+    } catch {}
+
+    // 4. Update Escalation State
+    setEscalation({
+      stage: 3,
+      countdownSeconds: 0,
+      reason: 'accident',
+      timestamp: Date.now(),
+      silentMode: false,
+      audioRecording: true,
+      dispatchedTo: [
+        `Hospital Trauma Center: ${nearestHosp.name} (ER +1-555-0911)`,
+        `Primary Family: ${primary.name}`,
+        '112 Ambulance Dispatch'
+      ],
+      decoyActive: false
+    });
+
+    setActiveTrip((prev) => ({
+      ...prev,
+      status: 'sos_active'
+    }));
+
+    // 5. Open Accident Emergency Hospital & Medical Shop HUD Modal
+    setShowAccidentModal(true);
+  }, [contacts, telemetry.currentPosition, currentUser, activeTrip.vehicleNumber]);
+
+  // Dedicated Auto Battery Alert (<20%):
+  // "add auto battery notification when it is less than 20%"
+  const handleLowBatteryAutoNotification = useCallback(
+    (pct: number) => {
+      soundSystem.playCheckInChime();
+      const primary = contacts.find((c) => c.isPrimary) || contacts[0];
+
+      // 1. Spoken voice alert
+      soundSystem.speak(
+        `Critical battery warning. Battery is below 20 percent. Automatically transmitting last known location to ${primary.name}.`
+      );
+
+      // 2. Browser / Device Notification
+      if ('Notification' in window) {
+        if (Notification.permission === 'granted') {
+          try {
+            new Notification('⚠️ LOW BATTERY ALERT (<20%)', {
+              body: `Battery level is ${pct}%. Last known GPS coordinates dispatched to ${primary.name}.`
+            });
+          } catch {}
+        } else if (Notification.permission !== 'denied') {
+          try {
+            Notification.requestPermission().then((perm) => {
+              if (perm === 'granted') {
+                new Notification('⚠️ LOW BATTERY ALERT (<20%)', {
+                  body: `Battery level is ${pct}%. Last known GPS coordinates dispatched to ${primary.name}.`
+                });
+              }
+            });
+          } catch {}
+        }
+      }
+
+      // 3. Send Last Known Location to Contact via WhatsApp
+      const mapsLink = `https://www.google.com/maps?q=${telemetry.currentPosition.lat},${telemetry.currentPosition.lng}`;
+      const text = encodeURIComponent(
+        `⚠️ LOW BATTERY AUTO BEACON (<20%) ⚠️\nDevice battery is at ${pct}%. SafeTrip SOS is preserving power!\nLast Known GPS Location: ${mapsLink}\nVehicle: ${activeTrip.vehicleNumber || 'Transit'}\nDriver: ${activeTrip.driverName || 'Verified'}\nTimestamp: ${new Date().toLocaleTimeString()}`
+      );
+      const cleanPhone = (primary.whatsapp || primary.phone).replace(/[^0-9]/g, '');
+      try {
+        window.open(`https://wa.me/${cleanPhone}?text=${text}`, '_blank');
+      } catch {}
+
+      // 4. On-screen Banner Notice
+      setBatteryAlertNotice({
+        level: pct,
+        timestamp: new Date().toLocaleTimeString()
+      });
+    },
+    [contacts, telemetry.currentPosition, activeTrip.vehicleNumber, activeTrip.driverName]
+  );
+
   // Trigger Escalation Handler
   const triggerEscalation = useCallback((reason: EscalationTrigger, immediateStage3 = false) => {
     soundSystem.playCheckInChime();
@@ -275,7 +410,17 @@ export default function App() {
     shakeEnabled: settings.shakeToSOS,
     fallDetectionEnabled: settings.fallDetectionEnabled,
     onVoiceTrigger: (phrase, intent) => {
+      // 1. "Accident" voice trigger
       if (
+        intent === 'accident' ||
+        phrase.includes('accident') ||
+        phrase.includes('crash') ||
+        phrase.includes('collision')
+      ) {
+        executeAccidentEmergencyFlow();
+      }
+      // 2. "Help Me" voice trigger
+      else if (
         intent === 'help_me' ||
         phrase.includes('help me') ||
         phrase.includes('save me') ||
@@ -295,7 +440,8 @@ export default function App() {
       triggerEscalation('fall_detected', false);
     },
     onBatteryAlert: (pct) => {
-      triggerEscalation('battery_critical', false);
+      // User requirement: auto battery notification when less than 20%
+      handleLowBatteryAutoNotification(pct);
     }
   });
 
@@ -616,13 +762,19 @@ export default function App() {
 
   // Run Simulation Scenarios
   const handleRunSimulation = (
-    scenario: 'normal' | 'deviation' | 'long_stop' | 'voice_trigger' | 'help_me' | 'fall' | 'low_battery'
+    scenario: 'normal' | 'deviation' | 'long_stop' | 'voice_trigger' | 'help_me' | 'accident' | 'fall' | 'low_battery' | 'battery_under_20'
   ) => {
     setSimulationScenario(scenario);
 
     if (scenario === 'help_me') {
       simulateSpeechPhrase('help me', 'help_me');
       executeHelpMeFlow();
+    } else if (scenario === 'accident') {
+      simulateSpeechPhrase('accident', 'accident');
+      executeAccidentEmergencyFlow();
+    } else if (scenario === 'battery_under_20') {
+      setBatteryLevel(18);
+      handleLowBatteryAutoNotification(18);
     } else if (scenario === 'normal') {
       setTelemetry((prev) => ({
         ...prev,
@@ -676,43 +828,89 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
       {/* Toast banner for Departure notification */}
-      {departureToast && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[7000] px-4 py-2.5 bg-emerald-600 text-white rounded-xl shadow-2xl text-xs font-semibold flex items-center gap-2 animate-bounce">
-          <CheckCircle className="w-4 h-4" />
-          <span>{departureToast}</span>
-        </div>
-      )}
+      <AnimatePresence>
+        {departureToast && (
+          <motion.div
+            initial={{ y: -60, opacity: 0, scale: 0.95 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: -60, opacity: 0, scale: 0.95 }}
+            transition={{ type: 'spring', bounce: 0.25, duration: 0.4 }}
+            className="fixed top-16 left-1/2 -translate-x-1/2 z-[7000] px-4 py-2.5 bg-emerald-600 text-white rounded-xl shadow-2xl text-xs font-semibold flex items-center gap-2 border border-emerald-400/40"
+          >
+            <CheckCircle className="w-4 h-4" />
+            <span>{departureToast}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Persistent Banner for "Help Me" Emergency Trigger */}
-      {helpMeNotice && (
-        <div className="bg-rose-950 border-b border-rose-800 text-rose-100 px-4 py-2.5 text-xs flex items-center justify-between z-[45] sticky top-0 shadow-xl">
-          <div className="flex items-center gap-2.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
-            <span className="font-bold uppercase tracking-wider">
-              "HELP ME" VOICE TRIGGER ACTIVE
-            </span>
-            <span className="hidden sm:inline opacity-80">·</span>
-            <span className="hidden sm:inline">
-              Live location sent to {helpMeNotice.targetName} ({helpMeNotice.phone}) at {helpMeNotice.timestamp}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
+      <AnimatePresence>
+        {helpMeNotice && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="bg-rose-950 border-b border-rose-800 text-rose-100 px-4 py-2.5 text-xs flex items-center justify-between z-[45] sticky top-0 shadow-xl overflow-hidden"
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping shrink-0" />
+              <span className="font-bold uppercase tracking-wider">
+                "HELP ME" VOICE TRIGGER ACTIVE
+              </span>
+              <span className="hidden sm:inline opacity-80">·</span>
+              <span className="hidden sm:inline">
+                Live location sent to {helpMeNotice.targetName} ({helpMeNotice.phone}) at {helpMeNotice.timestamp}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowFamilyCallModal(true)}
+                className="px-2.5 py-1 bg-rose-700 hover:bg-rose-600 text-white rounded font-medium text-[11px] flex items-center gap-1 shadow transition-colors"
+              >
+                <Phone className="w-3 h-3" />
+                <span>Family Call HUD</span>
+              </button>
+              <button
+                onClick={() => setHelpMeNotice(null)}
+                className="text-slate-400 hover:text-white px-1.5 text-xs transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Persistent Banner for Low Battery Alert (<20%) */}
+      <AnimatePresence>
+        {batteryAlertNotice && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="bg-orange-950/95 border-b border-orange-800 text-orange-100 px-4 py-2.5 text-xs flex items-center justify-between z-[44] sticky top-0 shadow-lg overflow-hidden backdrop-blur"
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-orange-400 animate-pulse shrink-0" />
+              <span className="font-bold uppercase tracking-wider">
+                LOW BATTERY AUTO BEACON (&lt;20%)
+              </span>
+              <span className="hidden sm:inline opacity-80">·</span>
+              <span className="hidden sm:inline">
+                Device level {batteryAlertNotice.level}%. Last known location transmitted to guardians at {batteryAlertNotice.timestamp}.
+              </span>
+            </div>
             <button
-              onClick={() => setShowFamilyCallModal(true)}
-              className="px-2.5 py-1 bg-rose-700 hover:bg-rose-600 text-white rounded font-medium text-[11px] flex items-center gap-1 shadow"
-            >
-              <Phone className="w-3 h-3" />
-              <span>Family Call HUD</span>
-            </button>
-            <button
-              onClick={() => setHelpMeNotice(null)}
-              className="text-slate-400 hover:text-white px-1.5 text-xs"
+              onClick={() => setBatteryAlertNotice(null)}
+              className="text-orange-300 hover:text-white px-1.5 text-xs transition-colors"
             >
               ✕
             </button>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Emergency Family Call Modal HUD */}
       {showFamilyCallModal && (
@@ -722,6 +920,24 @@ export default function App() {
           trip={activeTrip}
           onEndCall={() => setShowFamilyCallModal(false)}
           batteryLevel={telemetry.batteryLevel}
+        />
+      )}
+
+      {/* Accident Emergency Hospital & Medical Shop Modal */}
+      {showAccidentModal && (
+        <AccidentHospitalModal
+          currentPosition={telemetry.currentPosition}
+          trip={activeTrip}
+          primaryContact={primaryContact}
+          onClose={() => setShowAccidentModal(false)}
+          onOpenFirstAid={() => {
+            setShowAccidentModal(false);
+            setActiveTab('firstaid');
+          }}
+          onNavigateToSpot={(spot) => {
+            setShowAccidentModal(false);
+            setActiveTab('journey');
+          }}
         />
       )}
 
@@ -774,6 +990,7 @@ export default function App() {
         telemetry={telemetry}
         onTriggerSOS={(immediate) => triggerEscalation('manual_sos', immediate)}
         onHelpMeTrigger={executeHelpMeFlow}
+        onAccidentTrigger={executeAccidentEmergencyFlow}
         onOpenSafeSpots={() => setActiveTab('safespots')}
         onOpenFirstAid={() => setActiveTab('firstaid')}
         onOpenStartJourney={() => setShowStartJourneyModal(true)}
@@ -802,14 +1019,18 @@ export default function App() {
         />
       )}
 
-      {/* Top Application Bar */}
+      {/* Top Application Bar with Sleek Glassmorphism */}
       <header className="border-b border-slate-800 bg-slate-950/95 sticky top-0 z-40 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between">
           {/* Logo, Pitch & User Profile Badge */}
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-600 to-amber-600 flex items-center justify-center shadow-lg shadow-rose-900/30">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-600 via-rose-500 to-amber-600 flex items-center justify-center shadow-lg shadow-rose-900/30"
+            >
               <Shield className="w-5 h-5 text-white" />
-            </div>
+            </motion.div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-bold tracking-tight text-slate-100 text-sm sm:text-base">
@@ -820,13 +1041,14 @@ export default function App() {
                 </span>
               </div>
               <div className="flex items-center gap-2 text-[11px] text-slate-400">
-                <span className="font-medium text-emerald-400">
+                <span className="font-medium text-emerald-400 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   {currentUser.name} ({currentUser.persona})
                 </span>
                 <span>·</span>
                 <button
                   onClick={() => setCurrentUser(null)}
-                  className="text-slate-500 hover:text-slate-300 underline"
+                  className="text-slate-500 hover:text-slate-300 underline transition-colors"
                   title="Switch identity profile"
                 >
                   Switch User
@@ -838,23 +1060,31 @@ export default function App() {
           {/* Telemetry Status Badges & Quick Action Controls */}
           <div className="flex items-center gap-2 sm:gap-2.5">
             {/* Start Journey Quick Button */}
-            <button
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.96 }}
               onClick={() => setShowStartJourneyModal(true)}
-              className="px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-emerald-950/40 transition-all active:scale-95"
+              className="px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-emerald-950/40 transition-all"
             >
               <Navigation className="w-3.5 h-3.5" />
               <span>Start Journey</span>
-            </button>
+            </motion.button>
 
             {/* Voice Guardian Assistant Launch Button */}
-            <button
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.96 }}
               onClick={() => setShowVoiceAssistantModal(true)}
-              className="px-2.5 py-1.5 rounded-lg border text-xs font-semibold flex items-center gap-1.5 transition-all bg-gradient-to-r from-blue-900/50 to-cyan-900/50 hover:from-blue-800/60 hover:to-cyan-800/60 text-cyan-300 border-cyan-500/40 shadow-sm"
+              className="px-2.5 py-1.5 rounded-lg border text-xs font-semibold flex items-center gap-1.5 transition-all bg-gradient-to-r from-blue-950/70 to-cyan-950/70 hover:from-blue-900/80 hover:to-cyan-900/80 text-cyan-300 border-cyan-500/40 shadow-sm"
               title="Activate Hands-Free Voice Assistant"
             >
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+              <div className="flex items-center gap-0.5 h-3">
+                <span className="w-0.5 h-2 bg-cyan-400 rounded-full animate-wave-1" />
+                <span className="w-0.5 h-3 bg-cyan-400 rounded-full animate-wave-2" />
+                <span className="w-0.5 h-1.5 bg-cyan-400 rounded-full animate-wave-3" />
+              </div>
               <span className="hidden sm:inline">Voice Assistant</span>
-            </button>
+            </motion.button>
 
             {/* Battery Indicator */}
             <div className="flex items-center gap-1 text-xs text-slate-300 bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-800">
@@ -867,102 +1097,122 @@ export default function App() {
             </div>
 
             {/* Quick Camouflage Decoy Screen Button */}
-            <button
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.96 }}
               onClick={() => setShowDecoyModal(true)}
               className="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-amber-300 rounded-lg text-xs font-medium border border-amber-500/30 flex items-center gap-1.5 transition-colors shadow-sm"
               title="Disguise as standard calculator"
             >
               <EyeOff className="w-3.5 h-3.5 text-amber-400" />
               <span className="hidden sm:inline text-[11px]">Decoy PIN</span>
-            </button>
+            </motion.button>
 
             {/* Settings */}
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setShowSettingsModal(true)}
               className="p-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg border border-slate-800 transition-colors"
               title="Settings & Contacts"
             >
               <Settings className="w-4 h-4" />
-            </button>
+            </motion.button>
           </div>
         </div>
 
-        {/* Global Navigation Tabs (Clean unboxed design with Contacts added) */}
-        <div className="max-w-7xl mx-auto px-4 flex items-center gap-6 text-xs font-medium border-t border-slate-900/80 overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('journey')}
-            className={`py-2.5 border-b-2 transition-colors flex items-center gap-1.5 whitespace-nowrap ${
-              activeTab === 'journey'
-                ? 'border-emerald-400 text-emerald-300 font-semibold'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Compass className="w-3.5 h-3.5" />
-            <span>Active Trip Cockpit</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('contacts')}
-            className={`py-2.5 border-b-2 transition-colors flex items-center gap-1.5 whitespace-nowrap ${
-              activeTab === 'contacts'
-                ? 'border-emerald-400 text-emerald-300 font-semibold'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Users className="w-3.5 h-3.5" />
-            <span>Contacts & Guardians ({contacts.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('safespots')}
-            className={`py-2.5 border-b-2 transition-colors flex items-center gap-1.5 whitespace-nowrap ${
-              activeTab === 'safespots'
-                ? 'border-emerald-400 text-emerald-300 font-semibold'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Radar className="w-3.5 h-3.5" />
-            <span>Safe Spot Radar (24/7)</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('firstaid')}
-            className={`py-2.5 border-b-2 transition-colors flex items-center gap-1.5 whitespace-nowrap ${
-              activeTab === 'firstaid'
-                ? 'border-emerald-400 text-emerald-300 font-semibold'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <HeartPulse className="w-3.5 h-3.5" />
-            <span>Offline First-Aid Field Guide</span>
-          </button>
+        {/* Global Navigation Tabs with Smooth Animated Pill Indicator */}
+        <div className="max-w-7xl mx-auto px-4 flex items-center gap-2 sm:gap-4 text-xs font-medium border-t border-slate-900/80 overflow-x-auto py-1">
+          {[
+            { id: 'journey', label: 'Active Trip Cockpit', icon: <Compass className="w-3.5 h-3.5" /> },
+            { id: 'contacts', label: `Contacts & Guardians (${contacts.length})`, icon: <Users className="w-3.5 h-3.5" /> },
+            { id: 'safespots', label: 'Safe Spot Radar (24/7)', icon: <Radar className="w-3.5 h-3.5" /> },
+            { id: 'firstaid', label: 'Offline First-Aid Field Guide', icon: <HeartPulse className="w-3.5 h-3.5" /> },
+          ].map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`py-2 px-3 rounded-lg relative transition-colors flex items-center gap-2 whitespace-nowrap ${
+                  isActive ? 'text-emerald-300 font-semibold' : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="activeTabIndicator"
+                    className="absolute inset-0 bg-slate-900 border border-emerald-500/40 rounded-lg shadow-sm"
+                    transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
+                  />
+                )}
+                <span className="relative z-10 flex items-center gap-1.5">
+                  {tab.icon}
+                  <span>{tab.label}</span>
+                </span>
+              </button>
+            );
+          })}
         </div>
       </header>
 
-      {/* Main View Area */}
+      {/* Main View Area with AnimatePresence Page Transition */}
       <main className="flex-1 max-w-7xl mx-auto w-full p-3 sm:p-4 flex flex-col gap-3">
-        {activeTab === 'contacts' && (
-          <ContactsManager
-            contacts={contacts}
-            onUpdateContacts={setContacts}
-            currentPosition={telemetry.currentPosition}
-            onClose={() => setActiveTab('journey')}
-          />
-        )}
+        <AnimatePresence mode="wait">
+          {activeTab === 'contacts' && (
+            <motion.div
+              key="contacts-view"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
+            >
+              <ContactsManager
+                contacts={contacts}
+                onUpdateContacts={setContacts}
+                currentPosition={telemetry.currentPosition}
+                onClose={() => setActiveTab('journey')}
+              />
+            </motion.div>
+          )}
 
-        {activeTab === 'safespots' && (
-          <SafeSpotFinder
-            currentPosition={telemetry.currentPosition}
-            onFocusSpot={(spot) => {
-              setActiveTab('journey');
-            }}
-          />
-        )}
+          {activeTab === 'safespots' && (
+            <motion.div
+              key="safespots-view"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
+            >
+              <SafeSpotFinder
+                currentPosition={telemetry.currentPosition}
+                onFocusSpot={(spot) => {
+                  setActiveTab('journey');
+                }}
+              />
+            </motion.div>
+          )}
 
-        {activeTab === 'firstaid' && <FirstAidViewer />}
+          {activeTab === 'firstaid' && (
+            <motion.div
+              key="firstaid-view"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
+            >
+              <FirstAidViewer />
+            </motion.div>
+          )}
 
-        {activeTab === 'journey' && (
-          <div className="flex flex-col gap-3">
+          {activeTab === 'journey' && (
+            <motion.div
+              key="journey-view"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
+              className="flex flex-col gap-3"
+            >
             {/* Simulation Testing Lab Toolbar */}
             <SimulationControls
               isSimulating={true}
@@ -1190,14 +1440,19 @@ export default function App() {
                   <div className="space-y-1.5 text-xs">
                     <div className="flex justify-between text-slate-300">
                       <span className="text-slate-500">Vehicle / Unit:</span>
-                      <span className="font-medium text-slate-100">
+                      <span className="font-medium font-mono text-emerald-300">
                         {activeTrip.vehicleNumber || 'Private Transit'}
                       </span>
                     </div>
                     <div className="flex justify-between text-slate-300">
                       <span className="text-slate-500">Operator:</span>
-                      <span className="font-medium text-slate-100">
-                        {activeTrip.driverName || 'Verified Operator'}
+                      <span className="font-medium text-slate-100 flex items-center gap-1">
+                        <span>{activeTrip.driverName || 'Verified Operator'}</span>
+                        {activeTrip.driverDetails?.policeVerified && (
+                          <span className="text-[9px] text-emerald-400 bg-emerald-950 border border-emerald-800 px-1 py-0.2 rounded">
+                            Verified
+                          </span>
+                        )}
                       </span>
                     </div>
                     <div className="flex justify-between text-slate-300">
@@ -1206,6 +1461,33 @@ export default function App() {
                         {activeTrip.startName} → {activeTrip.destinationName}
                       </span>
                     </div>
+
+                    {activeTrip.driverDetails && (
+                      <div className="mt-2 pt-2 border-t border-slate-800/80 bg-slate-950/60 p-2 rounded-lg space-y-1 text-[11px]">
+                        <div className="flex justify-between items-center text-slate-300">
+                          <span className="text-slate-500">Model:</span>
+                          <span className="font-medium text-slate-200 truncate max-w-[160px]">
+                            {activeTrip.driverDetails.vehicleModel}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center text-slate-300">
+                          <span className="text-slate-500">Badge & Rating:</span>
+                          <span className="font-mono text-amber-300 flex items-center gap-1">
+                            ★ {activeTrip.driverDetails.rating} · {activeTrip.driverDetails.badgeNumber}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center text-slate-300">
+                          <span className="text-slate-500">Driver Contact:</span>
+                          <a
+                            href={`tel:${activeTrip.driverDetails.driverPhone}`}
+                            className="text-blue-400 hover:underline flex items-center gap-1"
+                          >
+                            <Phone className="w-2.5 h-2.5" />
+                            {activeTrip.driverDetails.driverPhone}
+                          </a>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Switch Presets */}
@@ -1286,8 +1568,9 @@ export default function App() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </main>
 
       {/* Floating Hands-Free Voice Assistant Orb in bottom right */}
