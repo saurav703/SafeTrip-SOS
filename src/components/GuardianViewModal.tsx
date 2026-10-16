@@ -25,24 +25,24 @@ export const GuardianViewModal: React.FC<GuardianViewModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[5000] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-[5000] bg-[#4F4F4D]/80 backdrop-blur-md flex items-center justify-center p-4 font-sans">
+      <div className="w-full max-w-lg bg-white border border-[#D8D4C5] rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] text-[#4F4F4D]">
         {/* Header */}
-        <div className="p-4 border-b border-slate-800 bg-slate-950 flex items-center justify-between">
+        <div className="p-4 border-b border-[#D8D4C5] bg-[#ECE9DD] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-blue-500/10 text-blue-400 rounded-lg border border-blue-500/20">
-              <Shield className="w-4 h-4" />
+            <div className="p-2 bg-[#BCB88A]/20 text-[#4F4F4D] rounded-xl border border-[#BCB88A]/40">
+              <Shield className="w-4 h-4 text-[#4F4F4D]" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-slate-100">Live Guardian View (Family / Trusted Link)</h3>
-              <p className="text-[11px] text-slate-400">
+              <h3 className="text-sm font-bold text-[#4F4F4D]">Live Guardian View (Family / Trusted Link)</h3>
+              <p className="text-[11px] text-[#686865]">
                 What your emergency contacts see in real-time when they open your tracking link.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="px-2.5 py-1 text-xs text-slate-400 hover:text-slate-200"
+            className="px-2.5 py-1 text-xs text-[#686865] hover:text-[#4F4F4D] font-bold"
           >
             ✕
           </button>
@@ -52,17 +52,17 @@ export const GuardianViewModal: React.FC<GuardianViewModalProps> = ({
         <div className="p-5 overflow-y-auto space-y-4">
           {/* Status Alert Banner */}
           <div
-            className={`p-3.5 rounded-xl border flex items-center justify-between text-xs ${
+            className={`p-3.5 rounded-2xl border flex items-center justify-between text-xs ${
               escalation.stage >= 2 || trip.status === 'sos_active'
-                ? 'bg-rose-950/40 border-rose-800 text-rose-200'
+                ? 'bg-rose-50 border-rose-200 text-rose-900'
                 : telemetry.routeDeviationMeters > 300
-                ? 'bg-amber-950/40 border-amber-800 text-amber-200'
-                : 'bg-emerald-950/40 border-emerald-800 text-emerald-200'
+                ? 'bg-[#E0DCBD]/60 border-[#BCB88A] text-[#4F4F4D]'
+                : 'bg-[#ECE9DD] border-[#D8D4C5] text-[#4F4F4D]'
             }`}
           >
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-current animate-ping" />
-              <span className="font-semibold uppercase tracking-wider">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#BCB88A] animate-ping" />
+              <span className="font-bold uppercase tracking-wider">
                 {escalation.stage >= 2 || trip.status === 'sos_active'
                   ? 'CRITICAL SOS ALERT TRIGGERED'
                   : telemetry.routeDeviationMeters > 300
@@ -70,25 +70,25 @@ export const GuardianViewModal: React.FC<GuardianViewModalProps> = ({
                   : 'TRAVELER IS SAFE & ON ROUTE'}
               </span>
             </div>
-            <span className="font-mono text-[11px] opacity-80">Live sync active</span>
+            <span className="font-mono text-[11px] text-[#686865]">Live sync active</span>
           </div>
 
           {/* Traveler & Vehicle Details */}
-          <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+          <div className="p-4 bg-[#F4F2E9] rounded-2xl border border-[#D8D4C5] space-y-3">
+            <div className="flex items-center justify-between border-b border-[#D8D4C5] pb-3">
               <div>
-                <span className="text-[11px] text-slate-500 uppercase tracking-wider block">
+                <span className="text-[11px] text-[#8C8868] uppercase tracking-wider font-semibold block">
                   Traveler
                 </span>
-                <span className="text-sm font-semibold text-slate-200">Alex Chen</span>
+                <span className="text-sm font-bold text-[#4F4F4D]">Alex Chen</span>
               </div>
-              <div className="flex items-center gap-4 text-xs font-mono">
-                <span className="flex items-center gap-1.5 text-slate-300">
-                  <Battery className="w-4 h-4 text-emerald-400" />
+              <div className="flex items-center gap-4 text-xs font-mono font-semibold">
+                <span className="flex items-center gap-1.5 text-[#4F4F4D]">
+                  <Battery className="w-4 h-4 text-[#BCB88A]" />
                   {telemetry.batteryLevel}%
                 </span>
-                <span className="flex items-center gap-1.5 text-slate-300">
-                  <Signal className="w-4 h-4 text-blue-400" />
+                <span className="flex items-center gap-1.5 text-[#4F4F4D]">
+                  <Signal className="w-4 h-4 text-[#BCB88A]" />
                   {telemetry.signalStrength.toUpperCase()}
                 </span>
               </div>
@@ -96,22 +96,22 @@ export const GuardianViewModal: React.FC<GuardianViewModalProps> = ({
 
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div>
-                <span className="text-[11px] text-slate-500 uppercase block">Vehicle</span>
-                <span className="font-medium text-slate-200">
+                <span className="text-[11px] text-[#8C8868] uppercase font-semibold block">Vehicle</span>
+                <span className="font-medium text-[#4F4F4D]">
                   {trip.vehicleNumber || 'Private Transit'}
                 </span>
               </div>
               <div>
-                <span className="text-[11px] text-slate-500 uppercase block">Driver</span>
-                <span className="font-medium text-slate-200">{trip.driverName || 'Verified Operator'}</span>
+                <span className="text-[11px] text-[#8C8868] uppercase font-semibold block">Driver</span>
+                <span className="font-medium text-[#4F4F4D]">{trip.driverName || 'Verified Operator'}</span>
               </div>
               <div>
-                <span className="text-[11px] text-slate-500 uppercase block">Origin</span>
-                <span className="font-medium text-slate-300 truncate block">{trip.startName}</span>
+                <span className="text-[11px] text-[#8C8868] uppercase font-semibold block">Origin</span>
+                <span className="font-medium text-[#4F4F4D] truncate block">{trip.startName}</span>
               </div>
               <div>
-                <span className="text-[11px] text-slate-500 uppercase block">Destination</span>
-                <span className="font-medium text-slate-300 truncate block">
+                <span className="text-[11px] text-[#8C8868] uppercase font-semibold block">Destination</span>
+                <span className="font-medium text-[#4F4F4D] truncate block">
                   {trip.destinationName}
                 </span>
               </div>
@@ -120,27 +120,27 @@ export const GuardianViewModal: React.FC<GuardianViewModalProps> = ({
 
           {/* Real-time Telemetry Stats */}
           <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-              <span className="text-[10px] text-slate-500 uppercase block">Speed</span>
-              <span className="text-base font-bold font-mono text-slate-200">
-                {telemetry.speedKmh} <span className="text-xs font-normal">km/h</span>
+            <div className="p-3 bg-white rounded-2xl border border-[#D8D4C5] shadow-xs">
+              <span className="text-[10px] text-[#8C8868] uppercase font-semibold block">Speed</span>
+              <span className="text-base font-bold font-mono text-[#4F4F4D]">
+                {telemetry.speedKmh} <span className="text-xs font-normal text-[#686865]">km/h</span>
               </span>
             </div>
-            <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-              <span className="text-[10px] text-slate-500 uppercase block">ETA</span>
-              <span className="text-base font-bold font-mono text-emerald-400">
-                ~{telemetry.etaMinutes} <span className="text-xs font-normal">min</span>
+            <div className="p-3 bg-white rounded-2xl border border-[#D8D4C5] shadow-xs">
+              <span className="text-[10px] text-[#8C8868] uppercase font-semibold block">ETA</span>
+              <span className="text-base font-bold font-mono text-[#4F4F4D]">
+                ~{telemetry.etaMinutes} <span className="text-xs font-normal text-[#686865]">min</span>
               </span>
             </div>
-            <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-              <span className="text-[10px] text-slate-500 uppercase block">Risk Score</span>
+            <div className="p-3 bg-white rounded-2xl border border-[#D8D4C5] shadow-xs">
+              <span className="text-[10px] text-[#8C8868] uppercase font-semibold block">Risk Score</span>
               <span
                 className={`text-base font-bold font-mono ${
                   telemetry.riskScore > 60
-                    ? 'text-rose-400'
+                    ? 'text-rose-600'
                     : telemetry.riskScore > 30
-                    ? 'text-amber-400'
-                    : 'text-emerald-400'
+                    ? 'text-amber-600'
+                    : 'text-[#4F4F4D]'
                 }`}
               >
                 {telemetry.riskScore}/100
@@ -150,22 +150,22 @@ export const GuardianViewModal: React.FC<GuardianViewModalProps> = ({
 
           {/* Quick Guardian Actions */}
           <div className="space-y-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 block">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#686865] block">
               Emergency Contact Actions
             </span>
             <div className="grid grid-cols-2 gap-2">
               <a
                 href="tel:112"
-                className="p-3 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 shadow-md transition-colors"
+                className="p-3 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 shadow-sm transition-colors"
               >
                 <Phone className="w-4 h-4" />
                 Call Police (112)
               </a>
               <button
                 onClick={copyLink}
-                className="p-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-medium flex items-center justify-center gap-2 border border-slate-700 transition-colors"
+                className="p-3 bg-[#4F4F4D] hover:bg-[#383836] text-[#F4F2E9] rounded-2xl text-xs font-semibold flex items-center justify-center gap-2 border border-[#383836] shadow-sm transition-colors"
               >
-                {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Share2 className="w-4 h-4" />}
+                {copied ? <Check className="w-4 h-4 text-[#BCB88A]" /> : <Share2 className="w-4 h-4 text-[#BCB88A]" />}
                 <span>{copied ? 'Link Copied!' : 'Copy Live Link'}</span>
               </button>
             </div>

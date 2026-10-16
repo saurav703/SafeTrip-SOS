@@ -65,17 +65,17 @@ export const SafeSpotFinder: React.FC<SafeSpotFinderProps> = ({
   };
 
   return (
-    <div className="w-full h-full flex flex-col bg-slate-950 text-slate-100 p-4 sm:p-6 overflow-y-auto">
+    <div className="w-full h-full flex flex-col bg-[#F4F2E9] text-[#4F4F4D] p-4 sm:p-6 overflow-y-auto font-sans">
       {/* Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+      <div className="flex items-center justify-between pb-4 border-b border-[#D8D4C5]">
         <div>
-          <h2 className="text-base font-semibold text-slate-100 flex items-center gap-2">
+          <h2 className="text-base font-bold text-[#4F4F4D] flex items-center gap-2">
             <span>Safe Spot Radar</span>
-            <span className="text-[11px] font-normal text-slate-400">
+            <span className="text-[11px] font-semibold text-[#686865]">
               · Nearest 24/7 Verified Refuges
             </span>
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-[#686865]">
             Real-time emergency sanctuaries, police posts, illuminated 24-hr lobbies & trauma centers.
           </p>
         </div>
@@ -83,7 +83,7 @@ export const SafeSpotFinder: React.FC<SafeSpotFinderProps> = ({
         {onClose && (
           <button
             onClick={onClose}
-            className="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors"
+            className="px-3.5 py-1.5 text-xs font-bold bg-[#4F4F4D] hover:bg-[#383836] text-[#F4F2E9] rounded-xl transition-all shadow-xs"
           >
             Back to Map
           </button>
@@ -93,17 +93,17 @@ export const SafeSpotFinder: React.FC<SafeSpotFinderProps> = ({
       {/* Filter Tabs */}
       <div className="mt-4 flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="w-4 h-4 absolute left-3 top-3 text-slate-500" />
+          <Search className="w-4 h-4 absolute left-3 top-3 text-[#686865]" />
           <input
             type="text"
             placeholder="Search safe refuges..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-slate-700"
+            className="w-full bg-white border border-[#D8D4C5] rounded-xl pl-9 pr-4 py-2.5 text-xs text-[#4F4F4D] placeholder-[#686865] focus:outline-none focus:border-[#4F4F4D]"
           />
         </div>
 
-        <div className="flex items-center gap-1 p-1 bg-slate-900 rounded-xl border border-slate-800 overflow-x-auto">
+        <div className="flex items-center gap-1 p-1 bg-[#ECE9DD] rounded-xl border border-[#D8D4C5] overflow-x-auto">
           {[
             { id: 'all', label: 'All Refuges' },
             { id: 'police', label: 'Police Posts' },
@@ -114,10 +114,10 @@ export const SafeSpotFinder: React.FC<SafeSpotFinderProps> = ({
             <button
               key={tab.id}
               onClick={() => setFilterCategory(tab.id)}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 text-xs font-bold rounded-lg whitespace-nowrap transition-all ${
                 filterCategory === tab.id
-                  ? 'bg-slate-800 text-slate-100 shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-[#4F4F4D] text-[#F4F2E9] shadow-xs'
+                  : 'text-[#686865] hover:text-[#4F4F4D]'
               }`}
             >
               {tab.label}
@@ -131,27 +131,27 @@ export const SafeSpotFinder: React.FC<SafeSpotFinderProps> = ({
         {filtered.map((spot) => (
           <div
             key={spot.id}
-            className="p-4 bg-slate-900/90 rounded-xl border border-slate-800 hover:border-slate-700 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+            className="p-4 bg-white rounded-xl border border-[#D8D4C5] hover:border-[#BCB88A] transition-all shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4"
           >
             <div className="flex items-start gap-3">
-              <div className="p-2.5 bg-slate-800 rounded-xl border border-slate-700 shrink-0 mt-0.5">
+              <div className="p-2.5 bg-[#ECE9DD] rounded-xl border border-[#D8D4C5] shrink-0 mt-0.5">
                 {getCategoryIcon(spot.category)}
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <h4 className="text-sm font-semibold text-slate-100">{spot.name}</h4>
+                  <h4 className="text-sm font-bold text-[#4F4F4D]">{spot.name}</h4>
                   {spot.is24x7 && (
-                    <span className="text-[10px] font-medium text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] font-bold text-[#4F4F4D] bg-[#BCB88A]/40 border border-[#BCB88A] px-2 py-0.5 rounded-full">
                       24/7 Active
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-2 text-xs text-slate-400 mb-1.5">
-                  <MapPin className="w-3.5 h-3.5 shrink-0 text-slate-500" />
+                <div className="flex items-center gap-2 text-xs text-[#686865] mb-1.5">
+                  <MapPin className="w-3.5 h-3.5 shrink-0 text-[#686865]" />
                   <span>{spot.address}</span>
                 </div>
-                <div className="flex items-center gap-4 text-xs font-mono text-slate-300">
-                  <span className="text-emerald-400 font-semibold">{spot.distanceMeters}m away</span>
+                <div className="flex items-center gap-4 text-xs font-mono text-[#686865]">
+                  <span className="text-[#4F4F4D] font-bold">{spot.distanceMeters}m away</span>
                   <span>· {spot.walkingMinutes} min walk</span>
                   <span>· {spot.drivingMinutes} min drive</span>
                 </div>
@@ -162,10 +162,10 @@ export const SafeSpotFinder: React.FC<SafeSpotFinderProps> = ({
             <div className="flex items-center gap-2 shrink-0">
               <a
                 href={`tel:${spot.phone.split('/')[0].trim()}`}
-                className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-medium flex items-center gap-1.5 border border-slate-700 transition-colors"
+                className="px-3.5 py-2 bg-[#ECE9DD] hover:bg-[#D8D4C5] text-[#4F4F4D] rounded-xl text-xs font-bold flex items-center gap-1.5 border border-[#D8D4C5] transition-colors"
                 title="Call direct"
               >
-                <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                <Phone className="w-3.5 h-3.5" />
                 <span>Call</span>
               </a>
 
@@ -178,9 +178,9 @@ export const SafeSpotFinder: React.FC<SafeSpotFinderProps> = ({
                     onClose();
                   }
                 }}
-                className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-md transition-colors"
+                className="px-3.5 py-2 bg-[#4F4F4D] hover:bg-[#383836] text-[#F4F2E9] rounded-xl text-xs font-bold flex items-center gap-1.5 border border-[#383836] shadow-sm transition-all"
               >
-                <Navigation2 className="w-3.5 h-3.5" />
+                <Navigation2 className="w-3.5 h-3.5 text-[#BCB88A]" />
                 <span>Show On Map</span>
               </button>
             </div>

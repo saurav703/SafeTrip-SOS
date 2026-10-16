@@ -4,7 +4,6 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import {
   Trip,
   TripTelemetry,
@@ -826,91 +825,45 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F4F2E9] text-[#4F4F4D] flex flex-col font-sans selection:bg-[#BCB88A]/30">
       {/* Toast banner for Departure notification */}
-      <AnimatePresence>
-        {departureToast && (
-          <motion.div
-            initial={{ y: -60, opacity: 0, scale: 0.95 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: -60, opacity: 0, scale: 0.95 }}
-            transition={{ type: 'spring', bounce: 0.25, duration: 0.4 }}
-            className="fixed top-16 left-1/2 -translate-x-1/2 z-[7000] px-4 py-2.5 bg-emerald-600 text-white rounded-xl shadow-2xl text-xs font-semibold flex items-center gap-2 border border-emerald-400/40"
-          >
-            <CheckCircle className="w-4 h-4" />
-            <span>{departureToast}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {departureToast && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[7000] px-4 py-2.5 bg-[#4F4F4D] text-[#F4F2E9] border border-[#BCB88A] rounded-xl shadow-2xl text-xs font-semibold flex items-center gap-2 animate-bounce">
+          <CheckCircle className="w-4 h-4 text-[#BCB88A]" />
+          <span>{departureToast}</span>
+        </div>
+      )}
 
       {/* Persistent Banner for "Help Me" Emergency Trigger */}
-      <AnimatePresence>
-        {helpMeNotice && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="bg-rose-950 border-b border-rose-800 text-rose-100 px-4 py-2.5 text-xs flex items-center justify-between z-[45] sticky top-0 shadow-xl overflow-hidden"
-          >
-            <div className="flex items-center gap-2.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping shrink-0" />
-              <span className="font-bold uppercase tracking-wider">
-                "HELP ME" VOICE TRIGGER ACTIVE
-              </span>
-              <span className="hidden sm:inline opacity-80">·</span>
-              <span className="hidden sm:inline">
-                Live location sent to {helpMeNotice.targetName} ({helpMeNotice.phone}) at {helpMeNotice.timestamp}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowFamilyCallModal(true)}
-                className="px-2.5 py-1 bg-rose-700 hover:bg-rose-600 text-white rounded font-medium text-[11px] flex items-center gap-1 shadow transition-colors"
-              >
-                <Phone className="w-3 h-3" />
-                <span>Family Call HUD</span>
-              </button>
-              <button
-                onClick={() => setHelpMeNotice(null)}
-                className="text-slate-400 hover:text-white px-1.5 text-xs transition-colors"
-              >
-                ✕
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Persistent Banner for Low Battery Alert (<20%) */}
-      <AnimatePresence>
-        {batteryAlertNotice && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="bg-orange-950/95 border-b border-orange-800 text-orange-100 px-4 py-2.5 text-xs flex items-center justify-between z-[44] sticky top-0 shadow-lg overflow-hidden backdrop-blur"
-          >
-            <div className="flex items-center gap-2.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-orange-400 animate-pulse shrink-0" />
-              <span className="font-bold uppercase tracking-wider">
-                LOW BATTERY AUTO BEACON (&lt;20%)
-              </span>
-              <span className="hidden sm:inline opacity-80">·</span>
-              <span className="hidden sm:inline">
-                Device level {batteryAlertNotice.level}%. Last known location transmitted to guardians at {batteryAlertNotice.timestamp}.
-              </span>
-            </div>
+      {helpMeNotice && (
+        <div className="bg-rose-900 border-b border-rose-950 text-white px-4 py-2.5 text-xs flex items-center justify-between z-[45] sticky top-0 shadow-xl">
+          <div className="flex items-center gap-2.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-rose-400 animate-ping" />
+            <span className="font-bold uppercase tracking-wider">
+              "HELP ME" VOICE TRIGGER ACTIVE
+            </span>
+            <span className="hidden sm:inline opacity-80">·</span>
+            <span className="hidden sm:inline">
+              Live location sent to {helpMeNotice.targetName} ({helpMeNotice.phone}) at {helpMeNotice.timestamp}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => setBatteryAlertNotice(null)}
-              className="text-orange-300 hover:text-white px-1.5 text-xs transition-colors"
+              onClick={() => setShowFamilyCallModal(true)}
+              className="px-2.5 py-1 bg-white text-rose-900 font-bold rounded-lg text-[11px] flex items-center gap-1 shadow-sm"
+            >
+              <Phone className="w-3 h-3" />
+              <span>Family Call HUD</span>
+            </button>
+            <button
+              onClick={() => setHelpMeNotice(null)}
+              className="text-white/80 hover:text-white px-1.5 text-xs font-bold"
             >
               ✕
             </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      )}
 
       {/* Emergency Family Call Modal HUD */}
       {showFamilyCallModal && (
@@ -920,24 +873,6 @@ export default function App() {
           trip={activeTrip}
           onEndCall={() => setShowFamilyCallModal(false)}
           batteryLevel={telemetry.batteryLevel}
-        />
-      )}
-
-      {/* Accident Emergency Hospital & Medical Shop Modal */}
-      {showAccidentModal && (
-        <AccidentHospitalModal
-          currentPosition={telemetry.currentPosition}
-          trip={activeTrip}
-          primaryContact={primaryContact}
-          onClose={() => setShowAccidentModal(false)}
-          onOpenFirstAid={() => {
-            setShowAccidentModal(false);
-            setActiveTab('firstaid');
-          }}
-          onNavigateToSpot={(spot) => {
-            setShowAccidentModal(false);
-            setActiveTab('journey');
-          }}
         />
       )}
 
@@ -1019,200 +954,139 @@ export default function App() {
         />
       )}
 
-      {/* Top Application Bar with Sleek Glassmorphism */}
-      <header className="border-b border-slate-800 bg-slate-950/95 sticky top-0 z-40 backdrop-blur-md">
+      {/* Top Application Bar */}
+      <header className="border-b border-[#383836] bg-[#4F4F4D] text-[#F4F2E9] sticky top-0 z-40 shadow-sm backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between">
-          {/* Logo, Pitch & User Profile Badge */}
+          {/* Logo, Identity & User Profile Badge */}
           <div className="flex items-center gap-3">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-600 via-rose-500 to-amber-600 flex items-center justify-center shadow-lg shadow-rose-900/30"
-            >
-              <Shield className="w-5 h-5 text-white" />
-            </motion.div>
+            <div className="w-8 h-8 rounded-lg bg-[#383836] border border-[#BCB88A]/50 flex items-center justify-center text-[#BCB88A] shadow-xs">
+              <Shield className="w-4 h-4 text-[#BCB88A]" />
+            </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold tracking-tight text-slate-100 text-sm sm:text-base">
+              <div className="flex items-center gap-1.5">
+                <span className="font-extrabold tracking-tight text-[#F4F2E9] text-sm">
                   SafeTrip SOS
                 </span>
-                <span className="text-[11px] text-slate-400 hidden sm:inline">
-                  · Intelligent Journey Safety Engine
+                <span className="text-[#BCB88A] hidden sm:inline">·</span>
+                <span className="text-xs text-[#DBD7B5] hidden sm:inline">
+                  Journey Safety Platform
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-[11px] text-slate-400">
-                <span className="font-medium text-emerald-400 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  {currentUser.name} ({currentUser.persona})
+              <div className="flex items-center gap-1.5 text-xs text-[#DBD7B5]">
+                <span className="font-semibold text-[#F4F2E9]">
+                  {currentUser.name}
                 </span>
-                <span>·</span>
+                <span className="text-[#BCB88A]">·</span>
                 <button
                   onClick={() => setCurrentUser(null)}
-                  className="text-slate-500 hover:text-slate-300 underline transition-colors"
+                  className="text-[#BCB88A] hover:underline font-medium transition-colors"
                   title="Switch identity profile"
                 >
-                  Switch User
+                  Switch Profile
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Telemetry Status Badges & Quick Action Controls */}
-          <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* Quick Action Controls */}
+          <div className="flex items-center gap-2">
             {/* Start Journey Quick Button */}
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.96 }}
+            <button
               onClick={() => setShowStartJourneyModal(true)}
-              className="px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-emerald-950/40 transition-all"
+              className="px-3.5 py-1.5 bg-[#BCB88A] hover:bg-[#989469] text-[#383836] rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs"
             >
-              <Navigation className="w-3.5 h-3.5" />
+              <Navigation className="w-3.5 h-3.5 text-[#383836]" />
               <span>Start Journey</span>
-            </motion.button>
+            </button>
 
-            {/* Voice Guardian Assistant Launch Button */}
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.96 }}
-              onClick={() => setShowVoiceAssistantModal(true)}
-              className="px-2.5 py-1.5 rounded-lg border text-xs font-semibold flex items-center gap-1.5 transition-all bg-gradient-to-r from-blue-950/70 to-cyan-950/70 hover:from-blue-900/80 hover:to-cyan-900/80 text-cyan-300 border-cyan-500/40 shadow-sm"
-              title="Activate Hands-Free Voice Assistant"
-            >
-              <div className="flex items-center gap-0.5 h-3">
-                <span className="w-0.5 h-2 bg-cyan-400 rounded-full animate-wave-1" />
-                <span className="w-0.5 h-3 bg-cyan-400 rounded-full animate-wave-2" />
-                <span className="w-0.5 h-1.5 bg-cyan-400 rounded-full animate-wave-3" />
-              </div>
-              <span className="hidden sm:inline">Voice Assistant</span>
-            </motion.button>
-
-            {/* Battery Indicator */}
-            <div className="flex items-center gap-1 text-xs text-slate-300 bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-800">
-              {telemetry.batteryLevel <= 15 ? (
-                <BatteryWarning className="w-4 h-4 text-rose-400 animate-pulse" />
-              ) : (
-                <Battery className="w-4 h-4 text-emerald-400" />
-              )}
-              <span className="font-mono text-[11px]">{telemetry.batteryLevel}%</span>
-            </div>
-
-            {/* Quick Camouflage Decoy Screen Button */}
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.96 }}
-              onClick={() => setShowDecoyModal(true)}
-              className="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-amber-300 rounded-lg text-xs font-medium border border-amber-500/30 flex items-center gap-1.5 transition-colors shadow-sm"
-              title="Disguise as standard calculator"
-            >
-              <EyeOff className="w-3.5 h-3.5 text-amber-400" />
-              <span className="hidden sm:inline text-[11px]">Decoy PIN</span>
-            </motion.button>
 
             {/* Settings */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={() => setShowSettingsModal(true)}
-              className="p-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg border border-slate-800 transition-colors"
+              className="p-1.5 bg-[#383836] hover:bg-[#2e2e2c] text-[#DBD7B5] hover:text-[#F4F2E9] rounded-lg border border-[#686865] transition-colors"
               title="Settings & Contacts"
             >
               <Settings className="w-4 h-4" />
-            </motion.button>
+            </button>
           </div>
         </div>
 
-        {/* Global Navigation Tabs with Smooth Animated Pill Indicator */}
-        <div className="max-w-7xl mx-auto px-4 flex items-center gap-2 sm:gap-4 text-xs font-medium border-t border-slate-900/80 overflow-x-auto py-1">
-          {[
-            { id: 'journey', label: 'Active Trip Cockpit', icon: <Compass className="w-3.5 h-3.5" /> },
-            { id: 'contacts', label: `Contacts & Guardians (${contacts.length})`, icon: <Users className="w-3.5 h-3.5" /> },
-            { id: 'safespots', label: 'Safe Spot Radar (24/7)', icon: <Radar className="w-3.5 h-3.5" /> },
-            { id: 'firstaid', label: 'Offline First-Aid Field Guide', icon: <HeartPulse className="w-3.5 h-3.5" /> },
-          ].map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`py-2 px-3 rounded-lg relative transition-colors flex items-center gap-2 whitespace-nowrap ${
-                  isActive ? 'text-emerald-300 font-semibold' : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="activeTabIndicator"
-                    className="absolute inset-0 bg-slate-900 border border-emerald-500/40 rounded-lg shadow-sm"
-                    transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
-                  />
-                )}
-                <span className="relative z-10 flex items-center gap-1.5">
-                  {tab.icon}
-                  <span>{tab.label}</span>
-                </span>
-              </button>
-            );
-          })}
+        {/* Global Navigation Tabs */}
+        <div className="max-w-7xl mx-auto px-4 flex items-center gap-6 text-xs font-semibold border-t border-[#383836] bg-[#ECE9DD] text-[#4F4F4D] overflow-x-auto">
+          <button
+            onClick={() => setActiveTab('journey')}
+            className={`py-2.5 border-b-2 transition-all flex items-center gap-2 whitespace-nowrap px-1 ${
+              activeTab === 'journey'
+                ? 'border-[#4F4F4D] text-[#4F4F4D] font-bold'
+                : 'border-transparent text-[#686865] hover:text-[#4F4F4D]'
+            }`}
+          >
+            <Compass className="w-3.5 h-3.5 text-[#4F4F4D]" />
+            <span>Active Trip Cockpit</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('contacts')}
+            className={`py-2.5 border-b-2 transition-all flex items-center gap-2 whitespace-nowrap px-1 ${
+              activeTab === 'contacts'
+                ? 'border-[#4F4F4D] text-[#4F4F4D] font-bold'
+                : 'border-transparent text-[#686865] hover:text-[#4F4F4D]'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5 text-[#4F4F4D]" />
+            <span>Contacts & Guardians ({contacts.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('safespots')}
+            className={`py-2.5 border-b-2 transition-all flex items-center gap-2 whitespace-nowrap px-1 ${
+              activeTab === 'safespots'
+                ? 'border-[#4F4F4D] text-[#4F4F4D] font-bold'
+                : 'border-transparent text-[#686865] hover:text-[#4F4F4D]'
+            }`}
+          >
+            <Radar className="w-3.5 h-3.5 text-[#4F4F4D]" />
+            <span>Safe Spot Radar</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('firstaid')}
+            className={`py-2.5 border-b-2 transition-all flex items-center gap-2 whitespace-nowrap px-1 ${
+              activeTab === 'firstaid'
+                ? 'border-[#4F4F4D] text-[#4F4F4D] font-bold'
+                : 'border-transparent text-[#686865] hover:text-[#4F4F4D]'
+            }`}
+          >
+            <HeartPulse className="w-3.5 h-3.5 text-[#4F4F4D]" />
+            <span>Offline First-Aid Guide</span>
+          </button>
         </div>
       </header>
 
-      {/* Main View Area with AnimatePresence Page Transition */}
+      {/* Main View Area */}
       <main className="flex-1 max-w-7xl mx-auto w-full p-3 sm:p-4 flex flex-col gap-3">
-        <AnimatePresence mode="wait">
-          {activeTab === 'contacts' && (
-            <motion.div
-              key="contacts-view"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
-            >
-              <ContactsManager
-                contacts={contacts}
-                onUpdateContacts={setContacts}
-                currentPosition={telemetry.currentPosition}
-                onClose={() => setActiveTab('journey')}
-              />
-            </motion.div>
-          )}
+        {activeTab === 'contacts' && (
+          <ContactsManager
+            contacts={contacts}
+            onUpdateContacts={setContacts}
+            currentPosition={telemetry.currentPosition}
+            onClose={() => setActiveTab('journey')}
+          />
+        )}
 
-          {activeTab === 'safespots' && (
-            <motion.div
-              key="safespots-view"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
-            >
-              <SafeSpotFinder
-                currentPosition={telemetry.currentPosition}
-                onFocusSpot={(spot) => {
-                  setActiveTab('journey');
-                }}
-              />
-            </motion.div>
-          )}
+        {activeTab === 'safespots' && (
+          <SafeSpotFinder
+            currentPosition={telemetry.currentPosition}
+            onFocusSpot={(spot) => {
+              setActiveTab('journey');
+            }}
+          />
+        )}
 
-          {activeTab === 'firstaid' && (
-            <motion.div
-              key="firstaid-view"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
-            >
-              <FirstAidViewer />
-            </motion.div>
-          )}
+        {activeTab === 'firstaid' && <FirstAidViewer />}
 
-          {activeTab === 'journey' && (
-            <motion.div
-              key="journey-view"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
-              className="flex flex-col gap-3"
-            >
+        {activeTab === 'journey' && (
+          <div className="flex flex-col gap-3">
             {/* Simulation Testing Lab Toolbar */}
             <SimulationControls
               isSimulating={true}
@@ -1225,128 +1099,136 @@ export default function App() {
             />
 
             {/* Top HUD: Journey Status, Telemetry & Multi-factor Risk Score */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
               {/* Trip Progression */}
-              <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-slate-400 uppercase tracking-wider block mb-0.5">
+              <div className="p-3.5 bg-white border border-[#D8D4C5] rounded-xl shadow-xs">
+                <span className="text-[11px] font-bold text-[#686865] uppercase tracking-wider block mb-1">
                   Transit Speed
                 </span>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-xl font-bold font-mono text-slate-100">
+                  <span className="text-2xl font-black font-mono text-[#4F4F4D]">
                     {telemetry.speedKmh}
                   </span>
-                  <span className="text-xs text-slate-500">km/h</span>
+                  <span className="text-xs text-[#686865] font-semibold">km/h</span>
                 </div>
-                <span className="text-[10px] text-slate-400 block truncate">
+                <span className="text-[11px] text-[#686865] block truncate mt-1">
                   ETA ~{telemetry.etaMinutes} min to destination
                 </span>
               </div>
 
               {/* Deviation Metric */}
-              <div
-                className={`p-3 rounded-xl border ${
-                  telemetry.routeDeviationMeters > settings.deviationThresholdMeters
-                    ? 'bg-rose-950/40 border-rose-800 text-rose-200'
-                    : telemetry.routeDeviationMeters > 150
-                    ? 'bg-amber-950/30 border-amber-800 text-amber-200'
-                    : 'bg-slate-900/80 border-slate-800'
-                }`}
-              >
-                <span className="text-[10px] uppercase tracking-wider block mb-0.5 opacity-80">
-                  Route Corridor
-                </span>
+              <div className="p-3.5 bg-white border border-[#D8D4C5] rounded-xl shadow-xs">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[11px] font-bold text-[#686865] uppercase tracking-wider block">
+                    Route Corridor
+                  </span>
+                  {telemetry.routeDeviationMeters > settings.deviationThresholdMeters && (
+                    <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                  )}
+                </div>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-xl font-bold font-mono">
+                  <span className={`text-2xl font-black font-mono ${
+                    telemetry.routeDeviationMeters > settings.deviationThresholdMeters
+                      ? 'text-rose-600'
+                      : telemetry.routeDeviationMeters > 150
+                      ? 'text-amber-600'
+                      : 'text-[#4F4F4D]'
+                  }`}>
                     {telemetry.routeDeviationMeters}
                   </span>
-                  <span className="text-xs opacity-75">m off</span>
+                  <span className="text-xs text-[#686865] font-semibold">m off</span>
                 </div>
-                <span className="text-[10px] opacity-75 block truncate">
-                  Tolerance: ±{settings.deviationThresholdMeters}m
+                <span className="text-[11px] text-[#686865] block truncate mt-1">
+                  Threshold: ±{settings.deviationThresholdMeters}m
                 </span>
               </div>
 
               {/* Stationary Stopwatch */}
-              <div
-                className={`p-3 rounded-xl border ${
-                  telemetry.stopDurationSeconds >= settings.maxStopDurationSeconds
-                    ? 'bg-rose-950/40 border-rose-800 text-rose-200'
-                    : telemetry.stopDurationSeconds > 60
-                    ? 'bg-amber-950/30 border-amber-800 text-amber-200'
-                    : 'bg-slate-900/80 border-slate-800'
-                }`}
-              >
-                <span className="text-[10px] uppercase tracking-wider block mb-0.5 opacity-80">
-                  Stationary Time
-                </span>
+              <div className="p-3.5 bg-white border border-[#D8D4C5] rounded-xl shadow-xs">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[11px] font-bold text-[#686865] uppercase tracking-wider block">
+                    Stationary Time
+                  </span>
+                  {telemetry.stopDurationSeconds >= settings.maxStopDurationSeconds && (
+                    <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                  )}
+                </div>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-xl font-bold font-mono">
+                  <span className={`text-2xl font-black font-mono ${
+                    telemetry.stopDurationSeconds >= settings.maxStopDurationSeconds
+                      ? 'text-rose-600'
+                      : telemetry.stopDurationSeconds > 60
+                      ? 'text-amber-600'
+                      : 'text-[#4F4F4D]'
+                  }`}>
                     {telemetry.stopDurationSeconds}
                   </span>
-                  <span className="text-xs opacity-75">sec</span>
+                  <span className="text-xs text-[#686865] font-semibold">sec</span>
                 </div>
-                <span className="text-[10px] opacity-75 block truncate">
-                  Auto-alert at {settings.maxStopDurationSeconds}s
+                <span className="text-[11px] text-[#686865] block truncate mt-1">
+                  Alert threshold: {settings.maxStopDurationSeconds}s
                 </span>
               </div>
 
               {/* Multi-Factor Risk Score Gauge */}
               <div
                 onClick={() => setShowRiskBreakdown(!showRiskBreakdown)}
-                className={`p-3 rounded-xl border cursor-pointer hover:border-slate-700 transition-colors ${
-                  telemetry.riskScore >= 65
-                    ? 'bg-rose-950/50 border-rose-800 text-rose-200'
-                    : telemetry.riskScore >= 35
-                    ? 'bg-amber-950/40 border-amber-800 text-amber-200'
-                    : 'bg-slate-900/80 border-slate-800'
-                }`}
+                className="p-3.5 bg-white border border-[#D8D4C5] hover:border-[#BCB88A] rounded-xl shadow-xs cursor-pointer transition-all"
               >
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] uppercase tracking-wider block mb-0.5 opacity-80">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[11px] font-bold text-[#686865] uppercase tracking-wider block">
                     Risk Engine Score
                   </span>
-                  <Info className="w-3 h-3 opacity-60" />
+                  <Info className="w-3.5 h-3.5 text-[#686865]" />
                 </div>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-xl font-bold font-mono">{telemetry.riskScore}</span>
-                  <span className="text-xs opacity-75">/100</span>
+                  <span className={`text-2xl font-black font-mono ${
+                    telemetry.riskScore >= 65
+                      ? 'text-rose-600'
+                      : telemetry.riskScore >= 35
+                      ? 'text-amber-600'
+                      : 'text-[#4F4F4D]'
+                  }`}>
+                    {telemetry.riskScore}
+                  </span>
+                  <span className="text-xs text-[#686865] font-semibold">/100</span>
                 </div>
-                <span className="text-[10px] opacity-80 font-medium block truncate">
+                <span className="text-[11px] text-[#4F4F4D] font-bold block truncate mt-1">
                   {telemetry.riskScore >= 65
-                    ? 'Critical Threat Level'
+                    ? '⚠️ Critical Threat'
                     : telemetry.riskScore >= 35
-                    ? 'Elevated Risk'
-                    : 'Safe & Monitored'}
+                    ? '⚡ Elevated Caution'
+                    : '🛡️ Safe & Monitored'}
                 </span>
               </div>
 
               {/* Primary Contact & Guardian Link */}
-              <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 col-span-2 flex items-center justify-between">
+              <div className="p-3.5 bg-white border border-[#D8D4C5] rounded-xl shadow-xs col-span-2 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block">
-                    Auto-Escalation Target
+                  <span className="text-[11px] font-bold text-[#686865] uppercase tracking-wider block mb-0.5">
+                    Primary Guardian Contact
                   </span>
-                  <span className="text-xs font-semibold text-slate-200 block truncate">
+                  <span className="text-xs font-bold text-[#4F4F4D] block truncate">
                     {primaryContact?.name}
                   </span>
-                  <span className="text-[10px] text-slate-500 font-mono">
+                  <span className="text-[11px] text-[#686865] font-mono">
                     {primaryContact?.phone} · WhatsApp Armed
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-2">
                   <button
                     onClick={() => setActiveTab('contacts')}
-                    className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs"
+                    className="p-2 bg-[#ECE9DD] hover:bg-[#D8D4C5] text-[#4F4F4D] border border-[#D8D4C5] rounded-lg text-xs transition-colors"
                     title="Manage Contacts"
                   >
-                    <Users className="w-3.5 h-3.5" />
+                    <Users className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => setShowGuardianModal(true)}
-                    className="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1 shadow transition-colors"
+                    className="px-3 py-1.5 bg-[#4F4F4D] hover:bg-[#383836] text-[#F4F2E9] border border-[#383836] rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs"
                   >
-                    <Share2 className="w-3 h-3" />
-                    <span>Share</span>
+                    <Share2 className="w-3.5 h-3.5 text-[#BCB88A]" />
+                    <span>Share Trip</span>
                   </button>
                 </div>
               </div>
@@ -1354,39 +1236,39 @@ export default function App() {
 
             {/* Risk Factor Breakdown Popup (if clicked) */}
             {showRiskBreakdown && (
-              <div className="p-4 bg-slate-900 rounded-xl border border-slate-700 shadow-xl space-y-2.5 animate-in fade-in">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-                  <span className="text-xs font-semibold text-slate-200">
-                    Live Multi-Factor Risk Analysis (Score: {telemetry.riskScore}/100)
+              <div className="p-4 bg-white rounded-2xl border border-[#D8D4C5] shadow-lg space-y-3 animate-in fade-in text-[#4F4F4D]">
+                <div className="flex items-center justify-between pb-2 border-b border-[#ECE9DD]">
+                  <span className="text-xs font-bold text-[#4F4F4D] uppercase tracking-wider">
+                    Live Multi-Factor Risk Analysis (Composite Score: {telemetry.riskScore}/100)
                   </span>
                   <button
                     onClick={() => setShowRiskBreakdown(false)}
-                    className="text-xs text-slate-400 hover:text-slate-200"
+                    className="text-xs font-semibold text-[#686865] hover:text-[#4F4F4D]"
                   >
                     Close
                   </button>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
                   {telemetry.riskFactors.map((rf) => (
                     <div
                       key={rf.id}
-                      className="p-2.5 bg-slate-950 rounded-lg border border-slate-800 text-xs"
+                      className="p-3 bg-[#F4F2E9] rounded-xl border border-[#D8D4C5] text-xs"
                     >
                       <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium text-slate-300">{rf.label}</span>
+                        <span className="font-bold text-[#4F4F4D]">{rf.label}</span>
                         <span
                           className={`font-mono text-[11px] font-bold ${
                             rf.status === 'danger'
-                              ? 'text-rose-400'
+                              ? 'text-rose-600'
                               : rf.status === 'caution'
-                              ? 'text-amber-400'
-                              : 'text-emerald-400'
+                              ? 'text-amber-600'
+                              : 'text-[#4F4F4D]'
                           }`}
                         >
                           +{rf.scoreContribution} pts
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-400">{rf.detail}</p>
+                      <p className="text-[11px] text-[#686865]">{rf.detail}</p>
                     </div>
                   ))}
                 </div>
@@ -1396,7 +1278,7 @@ export default function App() {
             {/* Main Interactive Map & Cockpit Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               {/* Left 2 Cols: Interactive Leaflet Map */}
-              <div className="lg:col-span-2 h-[420px] sm:h-[480px] relative">
+              <div className="lg:col-span-2 h-[440px] sm:h-[500px] relative rounded-2xl overflow-hidden border border-[#D8D4C5] shadow-xs bg-[#ECE9DD]">
                 <JourneyMap
                   currentPosition={telemetry.currentPosition}
                   plannedPolyline={activeTrip.plannedPolyline}
@@ -1415,74 +1297,75 @@ export default function App() {
               {/* Right Col: Trip Details, Presets & Tactical Action Center */}
               <div className="flex flex-col gap-3">
                 {/* Trip Profile & Vehicle Metadata Card */}
-                <div className="p-4 bg-slate-900/90 rounded-xl border border-slate-800 space-y-3">
+                <div className="p-4 bg-white border border-[#D8D4C5] rounded-2xl space-y-3.5 shadow-xs">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-xs font-semibold text-slate-200 block">
+                      <span className="text-xs font-bold text-[#4F4F4D] block truncate">
                         {activeTrip.name}
                       </span>
-                      <span className="text-[11px] text-emerald-400 font-mono">
-                        Active Monitored Trip
+                      <span className="text-[11px] text-[#4F4F4D] font-bold bg-[#BCB88A]/30 border border-[#BCB88A] px-2 py-0.5 rounded-full inline-block mt-0.5">
+                        Monitored Route Active
                       </span>
                     </div>
                     <button
+                      type="button"
                       onClick={() => setShowSafeRouteOverlay(!showSafeRouteOverlay)}
-                      className={`text-[11px] font-medium px-2 py-0.5 rounded transition-colors ${
+                      className={`text-[11px] font-bold px-2.5 py-1 rounded-lg border transition-all ${
                         showSafeRouteOverlay
-                          ? 'bg-blue-950 text-blue-300 border border-blue-800'
-                          : 'bg-slate-800 text-slate-400'
+                          ? 'bg-[#4F4F4D] text-[#F4F2E9] border-[#383836]'
+                          : 'bg-[#ECE9DD] text-[#4F4F4D] border-[#D8D4C5] hover:bg-[#D8D4C5]'
                       }`}
                     >
-                      {showSafeRouteOverlay ? 'Safe Route' : 'Standard'}
+                      {showSafeRouteOverlay ? 'Safe Corridor' : 'Standard'}
                     </button>
                   </div>
 
-                  <div className="space-y-1.5 text-xs">
-                    <div className="flex justify-between text-slate-300">
-                      <span className="text-slate-500">Vehicle / Unit:</span>
-                      <span className="font-medium font-mono text-emerald-300">
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between items-center text-[#4F4F4D]">
+                      <span className="text-[#686865] font-medium">Vehicle / Unit:</span>
+                      <span className="font-extrabold font-mono text-[#4F4F4D] bg-[#ECE9DD] px-2 py-0.5 rounded-md border border-[#D8D4C5]">
                         {activeTrip.vehicleNumber || 'Private Transit'}
                       </span>
                     </div>
-                    <div className="flex justify-between text-slate-300">
-                      <span className="text-slate-500">Operator:</span>
-                      <span className="font-medium text-slate-100 flex items-center gap-1">
+                    <div className="flex justify-between items-center text-[#4F4F4D]">
+                      <span className="text-[#686865] font-medium">Operator:</span>
+                      <span className="font-bold text-[#4F4F4D] flex items-center gap-1.5">
                         <span>{activeTrip.driverName || 'Verified Operator'}</span>
                         {activeTrip.driverDetails?.policeVerified && (
-                          <span className="text-[9px] text-emerald-400 bg-emerald-950 border border-emerald-800 px-1 py-0.2 rounded">
+                          <span className="text-[10px] text-[#4F4F4D] bg-[#BCB88A]/50 border border-[#BCB88A] px-1.5 py-0.5 rounded-md font-bold">
                             Verified
                           </span>
                         )}
                       </span>
                     </div>
-                    <div className="flex justify-between text-slate-300">
-                      <span className="text-slate-500">Route:</span>
-                      <span className="font-medium text-slate-100 truncate max-w-[170px]">
+                    <div className="flex justify-between items-center text-[#4F4F4D]">
+                      <span className="text-[#686865] font-medium">Route:</span>
+                      <span className="font-semibold text-[#4F4F4D] truncate max-w-[170px]">
                         {activeTrip.startName} → {activeTrip.destinationName}
                       </span>
                     </div>
 
                     {activeTrip.driverDetails && (
-                      <div className="mt-2 pt-2 border-t border-slate-800/80 bg-slate-950/60 p-2 rounded-lg space-y-1 text-[11px]">
-                        <div className="flex justify-between items-center text-slate-300">
-                          <span className="text-slate-500">Model:</span>
-                          <span className="font-medium text-slate-200 truncate max-w-[160px]">
+                      <div className="mt-2.5 pt-2.5 border-t border-[#ECE9DD] bg-[#F4F2E9] p-3 rounded-xl space-y-1.5 text-xs">
+                        <div className="flex justify-between items-center text-[#4F4F4D]">
+                          <span className="text-[#686865]">Vehicle Model:</span>
+                          <span className="font-bold text-[#4F4F4D] truncate max-w-[160px]">
                             {activeTrip.driverDetails.vehicleModel}
                           </span>
                         </div>
-                        <div className="flex justify-between items-center text-slate-300">
-                          <span className="text-slate-500">Badge & Rating:</span>
-                          <span className="font-mono text-amber-300 flex items-center gap-1">
+                        <div className="flex justify-between items-center text-[#4F4F4D]">
+                          <span className="text-[#686865]">Badge & Rating:</span>
+                          <span className="font-mono text-[#4F4F4D] font-bold flex items-center gap-1">
                             ★ {activeTrip.driverDetails.rating} · {activeTrip.driverDetails.badgeNumber}
                           </span>
                         </div>
-                        <div className="flex justify-between items-center text-slate-300">
-                          <span className="text-slate-500">Driver Contact:</span>
+                        <div className="flex justify-between items-center text-[#4F4F4D]">
+                          <span className="text-[#686865]">Driver Contact:</span>
                           <a
                             href={`tel:${activeTrip.driverDetails.driverPhone}`}
-                            className="text-blue-400 hover:underline flex items-center gap-1"
+                            className="text-[#4F4F4D] hover:underline flex items-center gap-1 font-bold font-mono"
                           >
-                            <Phone className="w-2.5 h-2.5" />
+                            <Phone className="w-3 h-3 text-[#BCB88A]" />
                             {activeTrip.driverDetails.driverPhone}
                           </a>
                         </div>
@@ -1491,19 +1374,20 @@ export default function App() {
                   </div>
 
                   {/* Switch Presets */}
-                  <div className="pt-2 border-t border-slate-800">
-                    <span className="text-[11px] text-slate-400 block mb-1.5">
+                  <div className="pt-2.5 border-t border-[#ECE9DD]">
+                    <span className="text-[11px] text-[#686865] block mb-1.5 font-bold uppercase tracking-wider">
                       Switch Trip Persona Profile:
                     </span>
-                    <div className="grid grid-cols-2 gap-1.5">
+                    <div className="grid grid-cols-2 gap-2">
                       {TRIP_PRESETS.map((p) => (
                         <button
                           key={p.id}
+                          type="button"
                           onClick={() => handleSelectPreset(p)}
-                          className={`p-2 rounded-lg text-[11px] font-medium text-left truncate transition-colors ${
+                          className={`p-2 rounded-lg text-xs font-semibold text-left truncate transition-all border ${
                             activeTrip.name === p.label
-                              ? 'bg-slate-800 text-emerald-300 border border-slate-700'
-                              : 'bg-slate-950 text-slate-400 hover:text-slate-200 border border-slate-800/80'
+                              ? 'bg-[#4F4F4D] text-[#F4F2E9] border-[#383836] shadow-xs'
+                              : 'bg-[#F4F2E9] text-[#686865] hover:text-[#4F4F4D] border-[#D8D4C5] hover:bg-[#ECE9DD]'
                           }`}
                         >
                           {p.label}
@@ -1514,87 +1398,90 @@ export default function App() {
                 </div>
 
                 {/* Emergency & Silent Triggers Action Center */}
-                <div className="p-4 bg-slate-900/90 rounded-xl border border-slate-800 space-y-2.5">
-                  <span className="text-xs font-semibold text-slate-200 uppercase tracking-wider block">
+                <div className="p-4 bg-white border border-[#D8D4C5] rounded-2xl space-y-3 shadow-xs">
+                  <span className="text-xs font-bold text-[#4F4F4D] uppercase tracking-wider block">
                     Discreet & Emergency Controls
                   </span>
 
                   {/* Immediate Critical SOS Button */}
                   <button
+                    type="button"
                     onClick={() => triggerEscalation('manual_sos', true)}
-                    className="w-full py-3.5 px-4 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-rose-950/60 active:scale-98 transition-all flex items-center justify-center gap-2 border border-rose-500/30"
+                    className="w-full py-3 px-4 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
                   >
-                    <ShieldAlert className="w-5 h-5 text-white" />
+                    <ShieldAlert className="w-4 h-4 text-white" />
                     <span>Instant SOS (Stage 3 Broadcast)</span>
                   </button>
 
                   <div className="grid grid-cols-2 gap-2">
                     {/* Check-in Trigger */}
                     <button
+                      type="button"
                       onClick={() => triggerEscalation('manual_sos', false)}
-                      className="py-2.5 px-3 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow transition-colors"
+                      className="py-2.5 px-3 bg-[#4F4F4D] hover:bg-[#383836] text-[#F4F2E9] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs"
                       title="Starts 30s check-in countdown before alerting contacts"
                     >
-                      <AlertTriangle className="w-4 h-4" />
+                      <AlertTriangle className="w-3.5 h-3.5 text-[#BCB88A]" />
                       <span>I Feel Unsafe (30s)</span>
                     </button>
 
                     {/* Disguised Decoy Screen */}
                     <button
+                      type="button"
                       onClick={() => setShowDecoyModal(true)}
-                      className="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                      className="py-2.5 px-3 bg-[#ECE9DD] hover:bg-[#D8D4C5] text-[#4F4F4D] border border-[#D8D4C5] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all"
                     >
-                      <EyeOff className="w-4 h-4 text-amber-400" />
+                      <EyeOff className="w-3.5 h-3.5 text-[#686865]" />
                       <span>Decoy PIN App</span>
                     </button>
                   </div>
 
-                  <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
+                  <div className="pt-2 border-t border-[#ECE9DD] flex items-center justify-between text-xs text-[#686865]">
                     <button
+                      type="button"
                       onClick={() => setShowVoiceAssistantModal(true)}
-                      className="text-cyan-400 hover:underline flex items-center gap-1 font-medium"
+                      className="text-[#4F4F4D] hover:underline flex items-center gap-1 font-bold"
                     >
-                      <Mic className="w-3 h-3" />
+                      <Mic className="w-3 h-3 text-[#BCB88A]" />
                       Voice Assistant Active
                     </button>
                     <a
                       href="tel:112"
-                      className="text-rose-400 hover:underline flex items-center gap-1 font-semibold"
+                      className="text-rose-600 hover:underline flex items-center gap-1 font-bold"
                     >
-                      <Phone className="w-3 h-3" />
-                      Call 112
+                      <Phone className="w-3 h-3 text-rose-600" />
+                      Emergency 112
                     </a>
                   </div>
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
-        </AnimatePresence>
       </main>
 
       {/* Floating Hands-Free Voice Assistant Orb in bottom right */}
       <button
         onClick={() => setShowVoiceAssistantModal(true)}
-        className="fixed bottom-5 right-5 z-40 w-12 h-12 rounded-full bg-gradient-to-tr from-blue-600 via-cyan-500 to-emerald-400 text-white shadow-xl shadow-cyan-900/50 flex items-center justify-center hover:scale-105 active:scale-95 transition-all group"
+        className="fixed bottom-5 right-5 z-40 w-13 h-13 rounded-full bg-[#4F4F4D] hover:bg-[#383836] text-[#BCB88A] border-2 border-[#BCB88A] shadow-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all group"
         title="Open Guardian Voice Assistant"
       >
-        <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-        <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-400 border-2 border-slate-950 animate-ping" />
+        <Sparkles className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+        <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#BCB88A] border-2 border-[#4F4F4D] animate-ping" />
       </button>
 
       {/* Footer */}
-      <footer className="border-t border-slate-900 bg-slate-950 py-3 text-center text-xs text-slate-500">
+      <footer className="border-t border-[#D8D4C5] bg-[#ECE9DD] py-3.5 text-center text-xs text-[#686865]">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>
-            SafeTrip SOS · Complete Journey & Travel Safety · Route Deviation & Decoy System
+          <span className="font-medium">
+            SafeTrip SOS · Complete Journey & Travel Safety Platform
           </span>
-          <div className="flex items-center gap-4 text-[11px] text-slate-400">
-            <span>Safe PIN: {settings.realPIN}</span>
+          <div className="flex items-center gap-3 text-[11px] text-[#4F4F4D] font-mono">
+            <span>Safe PIN: <strong>{settings.realPIN}</strong></span>
             <span>·</span>
-            <span>Decoy PIN: {settings.decoyPIN}</span>
+            <span>Decoy PIN: <strong>{settings.decoyPIN}</strong></span>
             <span>·</span>
-            <span>Voice: "{settings.voiceCodeWord}"</span>
+            <span>Voice Code: <strong>"{settings.voiceCodeWord}"</strong></span>
           </div>
         </div>
       </footer>

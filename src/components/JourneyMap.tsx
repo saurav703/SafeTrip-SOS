@@ -79,9 +79,9 @@ export const JourneyMap: React.FC<JourneyMapProps> = ({
     if (plannedPolyline && plannedPolyline.length > 0) {
       const latlngs = plannedPolyline.map((p) => [p.lat, p.lng] as [number, number]);
       plannedPolylineRef.current = L.polyline(latlngs, {
-        color: '#10b981', // emerald
+        color: '#4F4F4D', // charcoal mineral
         weight: 5,
-        opacity: 0.85,
+        opacity: 0.9,
         lineCap: 'round',
         lineJoin: 'round'
       }).addTo(map);
@@ -94,10 +94,10 @@ export const JourneyMap: React.FC<JourneyMapProps> = ({
     if (showSafeRoute && safeRoutePolyline && safeRoutePolyline.length > 0) {
       const safeLatLngs = safeRoutePolyline.map((p) => [p.lat, p.lng] as [number, number]);
       safePolylineRef.current = L.polyline(safeLatLngs, {
-        color: '#3b82f6', // blue
+        color: '#BCB88A', // sage gold
         weight: 4,
         dashArray: '8, 8',
-        opacity: 0.9
+        opacity: 0.95
       }).addTo(map);
     }
   }, [plannedPolyline, safeRoutePolyline, showSafeRoute]);
@@ -111,7 +111,7 @@ export const JourneyMap: React.FC<JourneyMapProps> = ({
     const startIcon = L.divIcon({
       className: 'start-marker',
       html: `
-        <div style="background-color: #10b981; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #ffffff; box-shadow: 0 4px 6px rgba(0,0,0,0.3); font-weight: bold; font-size: 11px;">
+        <div style="background-color: #4F4F4D; color: #F4F2E9; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #BCB88A; box-shadow: 0 3px 6px rgba(79,79,77,0.3); font-weight: bold; font-size: 11px;">
           A
         </div>
       `,
@@ -122,7 +122,7 @@ export const JourneyMap: React.FC<JourneyMapProps> = ({
     const destIcon = L.divIcon({
       className: 'dest-marker',
       html: `
-        <div style="background-color: #f43f5e; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #ffffff; box-shadow: 0 4px 6px rgba(0,0,0,0.3); font-weight: bold; font-size: 11px;">
+        <div style="background-color: #BCB88A; color: #4F4F4D; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #4F4F4D; box-shadow: 0 3px 6px rgba(79,79,77,0.3); font-weight: bold; font-size: 11px;">
           B
         </div>
       `,
@@ -145,16 +145,16 @@ export const JourneyMap: React.FC<JourneyMapProps> = ({
     if (!map) return;
 
     const isAlertState = tripStatus === 'sos_active' || tripStatus === 'sos_staged' || tripStatus === 'warning';
-    const markerColor = isAlertState ? '#ef4444' : '#0ea5e9';
+    const markerColor = isAlertState ? '#c53030' : '#4F4F4D';
     const pulseClass = isAlertState ? 'animate-urgent' : 'animate-radar';
 
     const vehicleIcon = L.divIcon({
       className: 'vehicle-marker-wrapper',
       html: `
         <div style="position: relative; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
-          <div style="position: absolute; width: 40px; height: 40px; border-radius: 50%; background-color: ${markerColor}; opacity: 0.25;" class="${pulseClass}"></div>
-          <div style="position: relative; width: 26px; height: 26px; border-radius: 50%; background-color: ${markerColor}; border: 2.5px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; color: white;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <div style="position: absolute; width: 38px; height: 38px; border-radius: 50%; background-color: #BCB88A; opacity: 0.35;" class="${pulseClass}"></div>
+          <div style="position: relative; width: 26px; height: 26px; border-radius: 50%; background-color: ${markerColor}; border: 2px solid #BCB88A; box-shadow: 0 4px 10px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; color: #F4F2E9;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="3 11 22 2 13 21 11 13 3 11"/>
             </svg>
           </div>
@@ -267,32 +267,32 @@ export const JourneyMap: React.FC<JourneyMapProps> = ({
   };
 
   return (
-    <div className="relative w-full h-full min-h-[340px] rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
+    <div className="relative w-full h-full min-h-[340px] rounded-2xl overflow-hidden border border-[#D8D4C5] bg-[#ECE9DD] shadow-sm">
       <div ref={mapContainerRef} className="w-full h-full" />
 
       {/* Quick Map Controls Overlay */}
       <div className="absolute top-3 right-3 z-[400] flex flex-col gap-2">
         <button
           onClick={recenter}
-          className="p-2.5 rounded-lg bg-slate-900/90 text-slate-200 border border-slate-700 hover:bg-slate-800 shadow-md transition-colors"
+          className="p-2.5 rounded-xl bg-white/95 text-[#4F4F4D] border border-[#D8D4C5] hover:bg-[#F4F2E9] shadow-sm transition-colors"
           title="Center on my vehicle"
         >
-          <Crosshair className="w-4 h-4 text-emerald-400" />
+          <Crosshair className="w-4 h-4 text-[#4F4F4D]" />
         </button>
       </div>
 
       {/* Floating Status Pill on Map */}
-      <div className="absolute top-3 left-3 z-[400] flex items-center gap-2 bg-slate-900/95 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800 text-xs shadow-lg">
+      <div className="absolute top-3 left-3 z-[400] flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-[#D8D4C5] text-xs shadow-md">
         <span
           className={`w-2 h-2 rounded-full ${
             tripStatus === 'sos_active' || tripStatus === 'sos_staged'
-              ? 'bg-rose-500 animate-ping'
+              ? 'bg-rose-600 animate-ping'
               : tripStatus === 'warning'
-              ? 'bg-amber-400 animate-pulse'
-              : 'bg-emerald-400'
+              ? 'bg-amber-500 animate-pulse'
+              : 'bg-[#BCB88A]'
           }`}
         />
-        <span className="font-medium text-slate-200">
+        <span className="font-bold text-[#4F4F4D]">
           {tripStatus === 'sos_active'
             ? 'SOS ACTIVE — GPS BEACON STREAMING'
             : tripStatus === 'warning'
@@ -300,14 +300,14 @@ export const JourneyMap: React.FC<JourneyMapProps> = ({
             : 'CORRIDOR MONITORED'}
         </span>
         {routeDeviationMeters > 80 && (
-          <span className="text-amber-400 font-mono">+{routeDeviationMeters}m off</span>
+          <span className="text-amber-600 font-mono font-semibold">+{routeDeviationMeters}m off</span>
         )}
       </div>
 
       {/* Safe Corridor Legend */}
       {showSafeRoute && (
-        <div className="absolute bottom-3 left-3 z-[400] bg-slate-900/90 backdrop-blur-md px-2.5 py-1 rounded text-[11px] text-slate-300 border border-slate-800 flex items-center gap-2">
-          <div className="w-3 h-0.5 border-t-2 border-dashed border-blue-400" />
+        <div className="absolute bottom-3 left-3 z-[400] bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl text-[11px] text-[#4F4F4D] border border-[#D8D4C5] flex items-center gap-2 shadow-xs font-medium">
+          <div className="w-3 h-0.5 border-t-2 border-dashed border-[#BCB88A]" />
           <span>Safe Route (CCTV & Lit Arteries)</span>
         </div>
       )}

@@ -77,25 +77,25 @@ export const DecoyScreen: React.FC<DecoyScreenProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-slate-950 flex flex-col justify-between max-w-md mx-auto select-none">
+    <div className="fixed inset-0 z-[9999] bg-[#F4F2E9] text-[#4F4F4D] flex flex-col justify-between max-w-md mx-auto select-none font-sans border-x border-[#D8D4C5] shadow-2xl">
       {/* Camouflage Top Bar */}
-      <div className="p-4 flex items-center justify-between border-b border-slate-900 bg-slate-950">
+      <div className="p-4 flex items-center justify-between border-b border-[#D8D4C5] bg-[#ECE9DD]">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setDecoyMode(decoyMode === 'calculator' ? 'notes' : 'calculator')}
-            className="text-xs text-slate-500 hover:text-slate-400 transition-colors"
+            className="text-xs text-[#686865] hover:text-[#4F4F4D] transition-colors font-medium"
           >
             {decoyMode === 'calculator' ? 'Standard Calculator' : 'Quick Notes'}
           </button>
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="text-[10px] text-slate-600 font-mono">
+          <span className="text-[11px] text-[#686865] font-mono font-medium">
             {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </span>
           <button
             onClick={onClose}
-            className="p-1 rounded text-slate-600 hover:text-slate-400"
+            className="p-1 rounded text-[#686865] hover:text-[#4F4F4D]"
             title="Exit disguise"
           >
             <X className="w-4 h-4" />
@@ -104,7 +104,7 @@ export const DecoyScreen: React.FC<DecoyScreenProps> = ({
       </div>
 
       {fakeToast && (
-        <div className="mx-4 mt-2 p-3 bg-slate-800 text-slate-200 border border-slate-700 rounded-lg text-xs text-center animate-fade-in shadow-xl">
+        <div className="mx-4 mt-2 p-3 bg-white text-[#4F4F4D] border border-[#BCB88A] rounded-xl text-xs text-center animate-fade-in shadow-md font-medium">
           {fakeToast}
         </div>
       )}
@@ -113,10 +113,10 @@ export const DecoyScreen: React.FC<DecoyScreenProps> = ({
         <div className="flex-1 flex flex-col justify-end p-6">
           {/* Display */}
           <div className="mb-6 text-right pr-2">
-            <div className="text-4xl font-light text-slate-100 font-mono tracking-tight overflow-x-auto whitespace-nowrap">
+            <div className="text-4xl font-light text-[#4F4F4D] font-mono tracking-tight overflow-x-auto whitespace-nowrap">
               {calcDisplay}
             </div>
-            <div className="text-xs text-slate-500 mt-1">
+            <div className="text-xs text-[#8C8868] mt-1 font-medium">
               Disguised PIN gate: Enter PIN & press =
             </div>
           </div>
@@ -127,7 +127,7 @@ export const DecoyScreen: React.FC<DecoyScreenProps> = ({
               <button
                 key={k}
                 onClick={() => handleCalcInput(k)}
-                className="h-16 rounded-2xl bg-slate-800 text-amber-400 text-xl font-medium active:bg-slate-700 transition-colors"
+                className="h-16 rounded-2xl bg-[#ECE9DD] hover:bg-[#D8D4C5] border border-[#D8D4C5] text-[#4F4F4D] text-xl font-bold active:scale-95 transition-all shadow-xs"
               >
                 {k}
               </button>
@@ -137,8 +137,10 @@ export const DecoyScreen: React.FC<DecoyScreenProps> = ({
               <button
                 key={k}
                 onClick={() => handleCalcInput(k)}
-                className={`h-16 rounded-2xl text-xl font-medium active:bg-slate-700 transition-colors ${
-                  k === '*' ? 'bg-slate-800 text-amber-400' : 'bg-slate-900 text-slate-100'
+                className={`h-16 rounded-2xl text-xl font-semibold active:scale-95 transition-all border shadow-xs ${
+                  k === '*'
+                    ? 'bg-[#ECE9DD] hover:bg-[#D8D4C5] text-[#4F4F4D] border-[#D8D4C5]'
+                    : 'bg-white hover:bg-[#FAF9F5] text-[#4F4F4D] border-[#D8D4C5]'
                 }`}
               >
                 {k}
@@ -149,8 +151,10 @@ export const DecoyScreen: React.FC<DecoyScreenProps> = ({
               <button
                 key={k}
                 onClick={() => handleCalcInput(k)}
-                className={`h-16 rounded-2xl text-xl font-medium active:bg-slate-700 transition-colors ${
-                  k === '-' ? 'bg-slate-800 text-amber-400' : 'bg-slate-900 text-slate-100'
+                className={`h-16 rounded-2xl text-xl font-semibold active:scale-95 transition-all border shadow-xs ${
+                  k === '-'
+                    ? 'bg-[#ECE9DD] hover:bg-[#D8D4C5] text-[#4F4F4D] border-[#D8D4C5]'
+                    : 'bg-white hover:bg-[#FAF9F5] text-[#4F4F4D] border-[#D8D4C5]'
                 }`}
               >
                 {k}
@@ -161,8 +165,10 @@ export const DecoyScreen: React.FC<DecoyScreenProps> = ({
               <button
                 key={k}
                 onClick={() => handleCalcInput(k)}
-                className={`h-16 rounded-2xl text-xl font-medium active:bg-slate-700 transition-colors ${
-                  k === '+' ? 'bg-slate-800 text-amber-400' : 'bg-slate-900 text-slate-100'
+                className={`h-16 rounded-2xl text-xl font-semibold active:scale-95 transition-all border shadow-xs ${
+                  k === '+'
+                    ? 'bg-[#ECE9DD] hover:bg-[#D8D4C5] text-[#4F4F4D] border-[#D8D4C5]'
+                    : 'bg-white hover:bg-[#FAF9F5] text-[#4F4F4D] border-[#D8D4C5]'
                 }`}
               >
                 {k}
@@ -171,51 +177,51 @@ export const DecoyScreen: React.FC<DecoyScreenProps> = ({
 
             <button
               onClick={() => handleCalcInput('0')}
-              className="h-16 rounded-2xl bg-slate-900 text-slate-100 text-xl font-medium active:bg-slate-700 transition-colors"
+              className="h-16 rounded-2xl bg-white hover:bg-[#FAF9F5] text-[#4F4F4D] border border-[#D8D4C5] text-xl font-semibold active:scale-95 transition-all shadow-xs"
             >
               0
             </button>
             <button
               onClick={() => handleCalcInput('.')}
-              className="h-16 rounded-2xl bg-slate-900 text-slate-100 text-xl font-medium active:bg-slate-700 transition-colors"
+              className="h-16 rounded-2xl bg-white hover:bg-[#FAF9F5] text-[#4F4F4D] border border-[#D8D4C5] text-xl font-semibold active:scale-95 transition-all shadow-xs"
             >
               .
             </button>
             <button
               onClick={handleBackspace}
-              className="h-16 rounded-2xl bg-slate-900 text-slate-400 text-lg flex items-center justify-center active:bg-slate-700 transition-colors"
+              className="h-16 rounded-2xl bg-[#ECE9DD] hover:bg-[#D8D4C5] text-[#686865] border border-[#D8D4C5] text-lg flex items-center justify-center active:scale-95 transition-all shadow-xs"
             >
               <Delete className="w-5 h-5" />
             </button>
             <button
               onClick={() => handleCalcInput('=')}
-              className="h-16 rounded-2xl bg-emerald-600 text-white text-2xl font-bold active:bg-emerald-500 shadow-lg shadow-emerald-900/30 transition-colors"
+              className="h-16 rounded-2xl bg-[#BCB88A] hover:bg-[#A8A476] text-white text-2xl font-bold active:scale-95 shadow-md transition-all"
             >
               =
             </button>
           </div>
 
-          <div className="mt-6 pt-3 border-t border-slate-900 flex justify-between items-center text-[11px] text-slate-500">
-            <span>Real PIN: <strong className="text-slate-400">{realPIN}</strong> (Cancels)</span>
-            <span>Decoy PIN: <strong className="text-rose-400">{decoyPIN}</strong> (Silent SOS)</span>
+          <div className="mt-6 pt-3 border-t border-[#D8D4C5] flex justify-between items-center text-[11px] text-[#686865]">
+            <span>Real PIN: <strong className="text-[#4F4F4D] font-mono">{realPIN}</strong> (Cancels)</span>
+            <span>Decoy PIN: <strong className="text-rose-600 font-mono">{decoyPIN}</strong> (Silent SOS)</span>
           </div>
         </div>
       ) : (
         <div className="flex-1 flex flex-col p-6">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-slate-300">My Quick Notes</span>
-            <span className="text-xs text-slate-500">Local draft</span>
+            <span className="text-sm font-semibold text-[#4F4F4D]">My Quick Notes</span>
+            <span className="text-xs text-[#686865]">Local draft</span>
           </div>
           <textarea
             value={noteContent}
             onChange={(e) => setNoteContent(e.target.value)}
-            className="flex-1 w-full bg-slate-900/50 border border-slate-800 rounded-xl p-4 text-slate-200 text-sm focus:outline-none focus:border-slate-700 resize-none font-mono"
+            className="flex-1 w-full bg-white border border-[#D8D4C5] rounded-2xl p-4 text-[#4F4F4D] text-sm focus:outline-none focus:border-[#BCB88A] resize-none font-mono shadow-xs"
             placeholder="Type notes..."
           />
           <div className="mt-4 flex gap-2">
             <button
               onClick={() => setDecoyMode('calculator')}
-              className="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition-colors"
+              className="flex-1 py-2.5 bg-[#4F4F4D] hover:bg-[#383836] text-[#F4F2E9] rounded-xl text-xs font-semibold transition-colors shadow-sm"
             >
               Switch to Calculator
             </button>

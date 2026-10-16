@@ -86,18 +86,18 @@ export const ContactsManager: React.FC<ContactsManagerProps> = ({
   };
 
   return (
-    <div className="w-full h-full flex flex-col bg-slate-950 text-slate-100 p-4 sm:p-6 overflow-y-auto">
+    <div className="w-full h-full flex flex-col bg-[#F4F2E9] text-[#4F4F4D] p-4 sm:p-6 overflow-y-auto font-sans">
       {/* Top Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+      <div className="flex items-center justify-between pb-4 border-b border-[#D8D4C5]">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
-            <Users className="w-5 h-5" />
+          <div className="p-2.5 bg-[#4F4F4D] text-[#BCB88A] rounded-xl border border-[#383836] shadow-xs">
+            <Users className="w-5 h-5 text-[#BCB88A]" />
           </div>
           <div>
-            <h2 className="text-base font-semibold text-slate-100">
+            <h2 className="text-base font-bold text-[#4F4F4D]">
               Emergency Contacts & Guardian Network
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[#686865]">
               Trusted guardians who automatically receive your live route telemetry and WhatsApp emergency pings.
             </p>
           </div>
@@ -106,7 +106,7 @@ export const ContactsManager: React.FC<ContactsManagerProps> = ({
         {onClose && (
           <button
             onClick={onClose}
-            className="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors"
+            className="px-3.5 py-1.5 text-xs font-bold bg-[#4F4F4D] hover:bg-[#383836] text-[#F4F2E9] rounded-xl transition-all shadow-xs"
           >
             Back to Cockpit
           </button>
@@ -117,10 +117,10 @@ export const ContactsManager: React.FC<ContactsManagerProps> = ({
         {/* Left 2 Cols: Active Contacts List */}
         <div className="lg:col-span-2 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#686865]">
               Active Guardians ({contacts.length})
             </span>
-            <span className="text-[11px] text-slate-500">
+            <span className="text-[11px] text-[#686865]">
               Stage 2 notifies Primary · Stage 3 broadcasts to all
             </span>
           </div>
@@ -128,43 +128,44 @@ export const ContactsManager: React.FC<ContactsManagerProps> = ({
           {contacts.map((contact) => (
             <div
               key={contact.id}
-              className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+              className={`p-4 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                 contact.isPrimary
-                  ? 'bg-slate-900/95 border-emerald-500/60 shadow-lg shadow-emerald-950/20'
-                  : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
+                  ? 'bg-white border-[#BCB88A] ring-1 ring-[#BCB88A]/50 shadow-xs'
+                  : 'bg-white border-[#D8D4C5] hover:border-[#BCB88A] shadow-xs'
               }`}
             >
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <h4 className="text-sm font-semibold text-slate-100">{contact.name}</h4>
+                  <h4 className="text-sm font-bold text-[#4F4F4D]">{contact.name}</h4>
                   {contact.isPrimary ? (
-                    <span className="text-[10px] font-semibold text-emerald-300 bg-emerald-950 border border-emerald-800 px-2 py-0.5 rounded-full flex items-center gap-1">
-                      <Star className="w-3 h-3 fill-emerald-400 text-emerald-400" />
-                      Primary Contact (Stage 2 WhatsApp)
+                    <span className="text-xs text-[#4F4F4D] bg-[#BCB88A]/40 border border-[#BCB88A] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                      <Star className="w-3 h-3 fill-[#4F4F4D] text-[#4F4F4D]" />
+                      Primary Guardian
                     </span>
                   ) : (
                     <button
+                      type="button"
                       onClick={() => handleSetPrimary(contact.id)}
-                      className="text-[10px] text-slate-400 hover:text-slate-200 bg-slate-800 px-2 py-0.5 rounded transition-colors"
+                      className="text-[11px] text-[#686865] hover:text-[#4F4F4D] bg-[#ECE9DD] border border-[#D8D4C5] px-2 py-0.5 rounded-lg transition-colors font-semibold"
                     >
                       Set As Primary
                     </button>
                   )}
                 </div>
 
-                <div className="flex items-center gap-3 text-xs text-slate-400 font-mono">
-                  <span>{contact.phone}</span>
+                <div className="flex items-center gap-2 text-xs text-[#686865]">
+                  <span className="font-mono font-semibold text-[#4F4F4D]">{contact.phone}</span>
                   <span>·</span>
-                  <span className="font-sans text-slate-300">{contact.relationship}</span>
+                  <span className="font-medium">{contact.relationship}</span>
                 </div>
 
                 <div className="mt-2 flex items-center gap-2">
-                  <label className="flex items-center gap-1.5 cursor-pointer text-xs text-slate-300">
+                  <label className="flex items-center gap-1.5 cursor-pointer text-xs text-[#686865]">
                     <input
                       type="checkbox"
                       checked={contact.autoNotify}
                       onChange={() => handleToggleAutoNotify(contact.id)}
-                      className="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-0"
+                      className="rounded bg-[#F4F2E9] border-[#D8D4C5] text-[#4F4F4D] focus:ring-0"
                     />
                     <span>Auto-notify on departure</span>
                   </label>
@@ -174,26 +175,28 @@ export const ContactsManager: React.FC<ContactsManagerProps> = ({
               {/* Actions */}
               <div className="flex items-center gap-2 shrink-0">
                 <button
+                  type="button"
                   onClick={() => handleSendTestPing(contact)}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors"
+                  className="px-3 py-1.5 bg-[#4F4F4D] hover:bg-[#383836] text-[#F4F2E9] border border-[#383836] rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs"
                   title="Send test WhatsApp alert draft"
                 >
-                  <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>{testSentId === contact.id ? 'Test Sent!' : 'Test WhatsApp Ping'}</span>
+                  <MessageSquare className="w-3.5 h-3.5 text-[#BCB88A]" />
+                  <span>{testSentId === contact.id ? 'Test Sent' : 'WhatsApp Ping'}</span>
                 </button>
 
                 <a
                   href={`tel:${contact.phone}`}
-                  className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl transition-colors"
+                  className="p-2 bg-[#ECE9DD] hover:bg-[#D8D4C5] text-[#4F4F4D] border border-[#D8D4C5] rounded-xl transition-colors"
                   title="Call contact"
                 >
-                  <Phone className="w-4 h-4 text-blue-400" />
+                  <Phone className="w-3.5 h-3.5" />
                 </a>
 
                 {!contact.isPrimary && (
                   <button
+                    type="button"
                     onClick={() => handleDelete(contact.id)}
-                    className="p-2 text-slate-500 hover:text-rose-400 transition-colors"
+                    className="p-2 text-[#686865] hover:text-rose-600 transition-colors"
                     title="Remove contact"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -206,16 +209,16 @@ export const ContactsManager: React.FC<ContactsManagerProps> = ({
 
         {/* Right Col: Add New Guardian Form */}
         <div className="space-y-3">
-          <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 block">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#686865] block">
             Add Emergency Contact
           </span>
 
           <form
             onSubmit={handleAdd}
-            className="p-4 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-3"
+            className="p-4 bg-white border border-[#D8D4C5] rounded-2xl space-y-3 shadow-xs"
           >
             <div>
-              <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block mb-1">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-[#686865] block mb-1">
                 Full Name
               </label>
               <input
@@ -224,12 +227,12 @@ export const ContactsManager: React.FC<ContactsManagerProps> = ({
                 placeholder="e.g. Maya Patel"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-blue-500"
+                className="w-full bg-[#F4F2E9] border border-[#D8D4C5] rounded-xl px-3 py-2 text-xs text-[#4F4F4D] focus:outline-none focus:border-[#4F4F4D]"
               />
             </div>
 
             <div>
-              <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block mb-1">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-[#686865] block mb-1">
                 Phone Number (with Country Code)
               </label>
               <input
@@ -238,12 +241,12 @@ export const ContactsManager: React.FC<ContactsManagerProps> = ({
                 placeholder="+1 (555) 000-0000"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 font-mono focus:outline-none focus:border-blue-500"
+                className="w-full bg-[#F4F2E9] border border-[#D8D4C5] rounded-xl px-3 py-2 text-xs text-[#4F4F4D] font-mono focus:outline-none focus:border-[#4F4F4D]"
               />
             </div>
 
             <div>
-              <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block mb-1">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-[#686865] block mb-1">
                 Relationship
               </label>
               <input
@@ -251,26 +254,26 @@ export const ContactsManager: React.FC<ContactsManagerProps> = ({
                 placeholder="e.g. Partner, Parent, Colleague"
                 value={relationship}
                 onChange={(e) => setRelationship(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-blue-500"
+                className="w-full bg-[#F4F2E9] border border-[#D8D4C5] rounded-xl px-3 py-2 text-xs text-[#4F4F4D] focus:outline-none focus:border-[#4F4F4D]"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 shadow-md transition-colors"
+              className="w-full py-2.5 px-4 bg-[#4F4F4D] hover:bg-[#383836] text-[#F4F2E9] rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-all border border-[#383836]"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4 text-[#BCB88A]" />
               <span>Enroll Guardian</span>
             </button>
           </form>
 
           {/* Quick Help Card */}
-          <div className="p-3.5 bg-slate-950 rounded-xl border border-slate-800 text-xs text-slate-400 space-y-1.5">
-            <span className="font-semibold text-slate-300 block">How Escalation Works</span>
-            <p className="text-[11px] leading-relaxed">
+          <div className="p-4 bg-[#ECE9DD] rounded-2xl border border-[#D8D4C5] text-xs text-[#4F4F4D] space-y-2">
+            <span className="font-bold text-[#4F4F4D] block uppercase tracking-wider">How Escalation Works</span>
+            <p className="text-[11px] text-[#686865] leading-relaxed">
               When a route deviation, prolonged stop, or voice trigger occurs:
             </p>
-            <ul className="text-[11px] space-y-1 list-disc list-inside text-slate-400">
+            <ul className="text-[11px] space-y-1.5 list-disc list-inside text-[#4F4F4D]">
               <li>0–30s: Discreet check-in prompt on phone</li>
               <li>30s: Primary Contact receives WhatsApp draft with live GPS</li>
               <li>60s: All enrolled contacts & 112 helpline broadcasted</li>

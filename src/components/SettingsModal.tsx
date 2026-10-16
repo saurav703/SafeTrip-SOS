@@ -82,31 +82,31 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[5000] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-[5000] bg-[#4F4F4D]/80 backdrop-blur-md flex items-center justify-center p-4 font-sans">
+      <div className="w-full max-w-xl bg-white border border-[#D8D4C5] rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] text-[#4F4F4D]">
         {/* Header */}
-        <div className="p-4 border-b border-slate-800 bg-slate-950 flex items-center justify-between">
+        <div className="p-4 border-b border-[#D8D4C5] bg-[#ECE9DD] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg border border-emerald-500/20">
-              <Shield className="w-4 h-4" />
+            <div className="p-2 bg-[#BCB88A]/20 text-[#4F4F4D] rounded-xl border border-[#BCB88A]/40">
+              <Shield className="w-4 h-4 text-[#4F4F4D]" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-slate-100">SafeTrip SOS Security Preferences</h3>
-              <p className="text-[11px] text-slate-400">
+              <h3 className="text-sm font-bold text-[#4F4F4D]">SafeTrip SOS Security Preferences</h3>
+              <p className="text-[11px] text-[#686865]">
                 Configure silent triggers, decoy PINs, contacts, and detection thresholds.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="px-2.5 py-1 text-xs text-slate-400 hover:text-slate-200"
+            className="px-2.5 py-1 text-xs text-[#686865] hover:text-[#4F4F4D] font-bold"
           >
             ✕
           </button>
         </div>
 
         {/* Tab navigation */}
-        <div className="flex border-b border-slate-800 bg-slate-900/50 px-4 pt-2 gap-2 text-xs">
+        <div className="flex border-b border-[#D8D4C5] bg-[#F4F2E9] px-4 pt-2 gap-2 text-xs">
           {[
             { id: 'triggers', label: 'Silent Triggers & PINs' },
             { id: 'contacts', label: `Emergency Contacts (${currentContacts.length})` },
@@ -115,10 +115,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`pb-2.5 px-3 font-medium transition-colors border-b-2 ${
+              className={`pb-2.5 px-3 font-semibold transition-colors border-b-2 ${
                 activeTab === tab.id
-                  ? 'border-emerald-400 text-emerald-300'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
+                  ? 'border-[#4F4F4D] text-[#4F4F4D]'
+                  : 'border-transparent text-[#686865] hover:text-[#4F4F4D]'
               }`}
             >
               {tab.label}
@@ -131,18 +131,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {activeTab === 'triggers' && (
             <div className="space-y-4">
               {/* Real vs Decoy PIN */}
-              <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-3">
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-200 uppercase tracking-wider">
-                  <Key className="w-4 h-4 text-emerald-400" />
+              <div className="p-4 bg-[#F4F2E9] rounded-2xl border border-[#D8D4C5] space-y-3">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#4F4F4D] uppercase tracking-wider">
+                  <Key className="w-4 h-4 text-[#BCB88A]" />
                   <span>Dual PIN Security System</span>
                 </div>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <p className="text-xs text-[#686865] leading-relaxed">
                   If forced to unlock your phone or cancel an alert under duress, enter the Decoy PIN. It displays a fake "Trip Ended" screen while silently dispatching full Stage 3 emergency alerts!
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                   <div>
-                    <label className="text-[11px] text-slate-400 block mb-1">
+                    <label className="text-[11px] text-[#8C8868] font-semibold block mb-1">
                       Real Safe PIN (Cancels Alert)
                     </label>
                     <input
@@ -152,12 +152,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       onChange={(e) =>
                         setCurrentSettings({ ...currentSettings, realPIN: e.target.value })
                       }
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-emerald-400 tracking-widest focus:outline-none focus:border-emerald-500"
+                      className="w-full bg-white border border-[#D8D4C5] rounded-xl px-3 py-2 text-sm font-mono text-[#4F4F4D] tracking-widest focus:outline-none focus:border-[#BCB88A] shadow-xs"
                     />
                   </div>
 
                   <div>
-                    <label className="text-[11px] text-slate-400 block mb-1">
+                    <label className="text-[11px] text-[#8C8868] font-semibold block mb-1">
                       Decoy PIN (Secret Silent SOS)
                     </label>
                     <input
@@ -167,17 +167,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       onChange={(e) =>
                         setCurrentSettings({ ...currentSettings, decoyPIN: e.target.value })
                       }
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono text-rose-400 tracking-widest focus:outline-none focus:border-rose-500"
+                      className="w-full bg-white border border-[#D8D4C5] rounded-xl px-3 py-2 text-sm font-mono text-rose-600 tracking-widest focus:outline-none focus:border-rose-400 shadow-xs"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Voice Code Word */}
-              <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-3">
+              <div className="p-4 bg-[#F4F2E9] rounded-2xl border border-[#D8D4C5] space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-200 uppercase tracking-wider">
-                    <Mic className="w-4 h-4 text-blue-400" />
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#4F4F4D] uppercase tracking-wider">
+                    <Mic className="w-4 h-4 text-[#BCB88A]" />
                     <span>Discreet Voice Code Word</span>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -192,15 +192,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       }
                       className="sr-only peer"
                     />
-                    <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                    <div className="w-9 h-5 bg-[#D8D4C5] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#4F4F4D]"></div>
                   </label>
                 </div>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <p className="text-xs text-[#686865] leading-relaxed">
                   Speaking this phrase aloud during a trip will silently arm the SOS without flashing the screen or alerting others in the car.
                 </p>
 
                 <div>
-                  <label className="text-[11px] text-slate-400 block mb-1">
+                  <label className="text-[11px] text-[#8C8868] font-semibold block mb-1">
                     Trigger Phrase (lowercase)
                   </label>
                   <input
@@ -210,24 +210,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       setCurrentSettings({ ...currentSettings, voiceCodeWord: e.target.value })
                     }
                     placeholder="e.g. blue umbrella or order pizza"
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500"
+                    className="w-full bg-white border border-[#D8D4C5] rounded-xl px-3 py-2 text-xs text-[#4F4F4D] focus:outline-none focus:border-[#BCB88A] shadow-xs"
                   />
                 </div>
               </div>
 
               {/* Hardware Gestures */}
-              <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-3">
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-200 uppercase tracking-wider">
-                  <Smartphone className="w-4 h-4 text-amber-400" />
+              <div className="p-4 bg-[#F4F2E9] rounded-2xl border border-[#D8D4C5] space-y-3">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#4F4F4D] uppercase tracking-wider">
+                  <Smartphone className="w-4 h-4 text-[#BCB88A]" />
                   <span>Hardware Gestures & Impact</span>
                 </div>
 
                 <div className="flex items-center justify-between pt-1">
                   <div>
-                    <span className="text-xs font-medium text-slate-200 block">
+                    <span className="text-xs font-semibold text-[#4F4F4D] block">
                       Shake Phone 3 Times
                     </span>
-                    <span className="text-[11px] text-slate-500">
+                    <span className="text-[11px] text-[#686865]">
                       Vigorous rapid shake triggers silent SOS
                     </span>
                   </div>
@@ -237,16 +237,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     onChange={(e) =>
                       setCurrentSettings({ ...currentSettings, shakeToSOS: e.target.checked })
                     }
-                    className="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-0"
+                    className="rounded bg-white border-[#D8D4C5] text-[#4F4F4D] focus:ring-0 accent-[#4F4F4D]"
                   />
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-slate-900">
+                <div className="flex items-center justify-between pt-2 border-t border-[#D8D4C5]">
                   <div>
-                    <span className="text-xs font-medium text-slate-200 block">
+                    <span className="text-xs font-semibold text-[#4F4F4D] block">
                       Fall & Crash Impact Detection
                     </span>
-                    <span className="text-[11px] text-slate-500">
+                    <span className="text-[11px] text-[#686865]">
                       Detects severe freefall + hard surface collision
                     </span>
                   </div>
@@ -259,7 +259,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         fallDetectionEnabled: e.target.checked
                       })
                     }
-                    className="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-0"
+                    className="rounded bg-white border-[#D8D4C5] text-[#4F4F4D] focus:ring-0 accent-[#4F4F4D]"
                   />
                 </div>
               </div>
@@ -269,7 +269,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {activeTab === 'contacts' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-400">
+                <span className="text-xs text-[#686865]">
                   Primary contact receives Stage 2 WhatsApp alerts. All contacts receive Stage 3 broadcasts.
                 </span>
               </div>
@@ -279,18 +279,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 {currentContacts.map((contact) => (
                   <div
                     key={contact.id}
-                    className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between gap-3"
+                    className="p-3 bg-[#F4F2E9] rounded-2xl border border-[#D8D4C5] flex items-center justify-between gap-3 shadow-xs"
                   >
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-slate-100">{contact.name}</span>
+                        <span className="text-xs font-bold text-[#4F4F4D]">{contact.name}</span>
                         {contact.isPrimary && (
-                          <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1.5 py-0.2 rounded font-medium">
+                          <span className="text-[10px] bg-[#ECE9DD] text-[#4F4F4D] border border-[#BCB88A] px-1.5 py-0.5 rounded-full font-bold">
                             Primary (Stage 2)
                           </span>
                         )}
                       </div>
-                      <div className="text-[11px] text-slate-400 font-mono mt-0.5">
+                      <div className="text-[11px] text-[#686865] font-mono mt-0.5">
                         {contact.phone} · {contact.relationship}
                       </div>
                     </div>
@@ -299,14 +299,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       {!contact.isPrimary && (
                         <button
                           onClick={() => handleSetPrimary(contact.id)}
-                          className="px-2 py-1 text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 rounded transition-colors"
+                          className="px-2.5 py-1 text-[11px] bg-white hover:bg-[#ECE9DD] text-[#4F4F4D] border border-[#D8D4C5] rounded-lg transition-colors font-semibold"
                         >
                           Make Primary
                         </button>
                       )}
                       <button
                         onClick={() => handleDeleteContact(contact.id)}
-                        className="p-1.5 text-slate-500 hover:text-rose-400 transition-colors"
+                        className="p-1.5 text-[#8C8868] hover:text-rose-600 transition-colors"
                         title="Remove contact"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -317,8 +317,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
 
               {/* Add Contact Form */}
-              <div className="p-3.5 bg-slate-950/60 rounded-xl border border-dashed border-slate-800 space-y-2.5">
-                <span className="text-xs font-semibold text-slate-300 block">
+              <div className="p-3.5 bg-white rounded-2xl border border-dashed border-[#BCB88A] space-y-2.5">
+                <span className="text-xs font-bold text-[#4F4F4D] block">
                   Add Trusted Emergency Contact
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -327,28 +327,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     placeholder="Name"
                     value={newContactName}
                     onChange={(e) => setNewContactName(e.target.value)}
-                    className="bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200"
+                    className="bg-[#F4F2E9] border border-[#D8D4C5] rounded-xl px-2.5 py-1.5 text-xs text-[#4F4F4D] focus:outline-none focus:border-[#BCB88A]"
                   />
                   <input
                     type="text"
                     placeholder="Phone (with country code)"
                     value={newContactPhone}
                     onChange={(e) => setNewContactPhone(e.target.value)}
-                    className="bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200"
+                    className="bg-[#F4F2E9] border border-[#D8D4C5] rounded-xl px-2.5 py-1.5 text-xs text-[#4F4F4D] focus:outline-none focus:border-[#BCB88A]"
                   />
                   <input
                     type="text"
                     placeholder="Relationship (e.g. Sister)"
                     value={newContactRelation}
                     onChange={(e) => setNewContactRelation(e.target.value)}
-                    className="bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200"
+                    className="bg-[#F4F2E9] border border-[#D8D4C5] rounded-xl px-2.5 py-1.5 text-xs text-[#4F4F4D] focus:outline-none focus:border-[#BCB88A]"
                   />
                 </div>
                 <button
                   onClick={handleAddContact}
-                  className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg flex items-center justify-center gap-1.5 transition-colors"
+                  className="w-full py-2 bg-[#4F4F4D] hover:bg-[#383836] text-[#F4F2E9] text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-colors shadow-xs"
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-3.5 h-3.5 text-[#BCB88A]" />
                   Add to Emergency Network
                 </button>
               </div>
@@ -358,12 +358,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {activeTab === 'thresholds' && (
             <div className="space-y-4">
               {/* Route Deviation Sensitivity */}
-              <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
+              <div className="p-4 bg-[#F4F2E9] rounded-2xl border border-[#D8D4C5] space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-slate-200">
+                  <span className="font-bold text-[#4F4F4D]">
                     Route Deviation Tolerance
                   </span>
-                  <span className="font-mono text-emerald-400">
+                  <span className="font-mono font-bold text-[#4F4F4D]">
                     {currentSettings.deviationThresholdMeters} meters
                   </span>
                 </div>
@@ -379,20 +379,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       deviationThresholdMeters: Number(e.target.value)
                     })
                   }
-                  className="w-full accent-emerald-500"
+                  className="w-full accent-[#4F4F4D]"
                 />
-                <span className="text-[11px] text-slate-500 block">
+                <span className="text-[11px] text-[#686865] block">
                   Triggers 30s check-in if vehicle drifts further than this distance from expected route.
                 </span>
               </div>
 
               {/* Prolonged Stop Sensitivity */}
-              <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
+              <div className="p-4 bg-[#F4F2E9] rounded-2xl border border-[#D8D4C5] space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-slate-200">
+                  <span className="font-bold text-[#4F4F4D]">
                     Unusual Stop Timeout
                   </span>
-                  <span className="font-mono text-amber-400">
+                  <span className="font-mono font-bold text-[#4F4F4D]">
                     {Math.round(currentSettings.maxStopDurationSeconds / 60)} minutes (
                     {currentSettings.maxStopDurationSeconds}s)
                   </span>
@@ -409,18 +409,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       maxStopDurationSeconds: Number(e.target.value)
                     })
                   }
-                  className="w-full accent-amber-500"
+                  className="w-full accent-[#4F4F4D]"
                 />
-                <span className="text-[11px] text-slate-500 block">
+                <span className="text-[11px] text-[#686865] block">
                   Triggers 30s check-in if vehicle remains stationary in unverified zone without moving.
                 </span>
               </div>
 
               {/* Battery Alert */}
-              <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-3">
+              <div className="p-4 bg-[#F4F2E9] rounded-2xl border border-[#D8D4C5] space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
-                    <Battery className="w-4 h-4 text-rose-400" />
+                  <div className="flex items-center gap-2 text-xs font-bold text-[#4F4F4D]">
+                    <Battery className="w-4 h-4 text-rose-600" />
                     <span>Battery-Aware Last Location Broadcast</span>
                   </div>
                   <input
@@ -432,10 +432,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         batteryAlertEnabled: e.target.checked
                       })
                     }
-                    className="rounded bg-slate-800 border-slate-700 text-emerald-500 focus:ring-0"
+                    className="rounded bg-white border-[#D8D4C5] text-[#4F4F4D] focus:ring-0 accent-[#4F4F4D]"
                   />
                 </div>
-                <span className="text-xs text-slate-400 block">
+                <span className="text-xs text-[#686865] block">
                   Automatically sends last-known GPS coordinates, battery level, and heading to contacts before the phone powers off.
                 </span>
               </div>
@@ -444,22 +444,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
-          <span className="text-xs text-slate-500">
+        <div className="p-4 border-t border-[#D8D4C5] bg-[#ECE9DD] flex items-center justify-between">
+          <span className="text-xs text-[#686865] font-medium">
             {savedSuccess ? 'Preferences saved successfully!' : 'Local encrypted preferences'}
           </span>
           <div className="flex gap-2">
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium rounded-xl transition-colors"
+              className="px-4 py-2 bg-white hover:bg-[#ECE9DD] border border-[#D8D4C5] text-[#4F4F4D] text-xs font-semibold rounded-xl transition-colors shadow-xs"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-md transition-colors"
+              className="px-4 py-2 bg-[#4F4F4D] hover:bg-[#383836] text-[#F4F2E9] text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-colors border border-[#383836]"
             >
-              <Save className="w-3.5 h-3.5" />
+              <Save className="w-3.5 h-3.5 text-[#BCB88A]" />
               Save Preferences
             </button>
           </div>
